@@ -1,240 +1,305 @@
-<h1 align="center">
-    SCHOOL MANAGEMENT SYSTEM
-</h1>
+## 🧾 **Chi tiết chức năng (Théo rộng)**
 
-<h3 align="center">
-Streamline school management, class organization, and add students and faculty.<br>
-Seamlessly track attendance, assess performance, and provide feedback. <br>
-Access records, view marks, and communicate effortlessly.
-</h3>
+**1. Admin (Quản trị)** ✅
+- Đăng ký / đăng nhập. (POST `/AdminReg`, POST `/AdminLogin`)
+- Quản lý trường: tạo / xem / xóa / cập nhật Admin (GET/PUT/DELETE `/Admin/:id`).
+- Quản lý lớp: tạo / liệt kê / xem chi tiết / xóa (POST `/SclassCreate`, GET `/SclassList/:id`, GET `/Sclass/:id`, DELETE `/Sclass/:id`).
+- Quản lý môn học: tạo nhiều môn cho 1 lớp, liệt kê theo trường/lớp, xem/ xóa (POST `/SubjectCreate`, GET `/AllSubjects/:id`, GET `/ClassSubjects/:id`, GET `/Subject/:id`, DELETE `/Subject/:id`).
+- Quản lý học sinh: đăng ký (StudentReg), danh sách, cập nhật, xóa (GET/PUT/DELETE `/Student(s)`).
+- Quản lý giáo viên: đăng ký (TeacherReg), danh sách, cập nhật môn dạy, xóa (GET/PUT/DELETE `/Teacher(s)`, PUT `/TeacherSubject`).
+- Thông báo: tạo/sửa/xóa/liệt kê (POST `/NoticeCreate`, GET `/NoticeList/:id`, PUT/DELETE `/Notice(s|:id)`).
+- Khi xóa admin sẽ xóa cascade dữ liệu liên quan (lớp, học sinh, giáo viên, môn, thông báo, khiếu nại).
 
-<p>
-  <a href="https://youtu.be/ol650KwQkgY?si=rKcboqSv3n-e4UbC">Youtube Video</a>
-</p>
+**2. Teacher (Giáo viên)** ✅
+- Đăng ký / đăng nhập (POST `/TeacherReg`, POST `/TeacherLogin`).
+- Được gán môn/lớp; có thể cập nhật môn dạy (PUT `/TeacherSubject`).
+- Điểm danh giáo viên (POST `/TeacherAttendance/:id`).
+- Xem chi tiết giáo viên, danh sách theo trường.
 
-<p>
-  <a href="https://www.linkedin.com/in/yogndrr/">LinkedIn</a>
-</p>
+**3. Student (Học sinh)** ✅
+- Đăng ký / đăng nhập (POST `/StudentReg`, POST `/StudentLogin`).
+- Xem thông tin cá nhân, lớp, môn học.
+- Xem / cập nhật điểm thi (PUT `/UpdateExamResult/:id`).
+- Điểm danh cá nhân theo môn (PUT `/StudentAttendance/:id`).
+- Các thao tác xóa / reset điểm danh cho toàn trường hoặc theo môn có sẵn endpoints (ví dụ PUT `/RemoveAllStudentsAtten/:id`).
+
+**4. Khiếu nại & Thông báo**
+- Tạo / liệt kê khiếu nại (POST `/ComplainCreate`, GET `/ComplainList/:id`).
+- Tạo / liệt kê / chỉnh sửa thông báo (Notice routes như trên).
 
 
-# About
+## 🔌 **Tổng quan API — một số endpoint tiêu biểu**
 
-The School Management System is a web-based application built using the MERN (MongoDB, Express.js, React.js, Node.js) stack. It aims to streamline school management, class organization, and facilitate communication between students, teachers, and administrators.
+- POST `/AdminReg` — Tạo Admin. body: `{ name, email, schoolName, password }`.
+- POST `/AdminLogin` — Đăng nhập Admin. body: `{ email, password }`.
+- POST `/StudentReg` — Đăng ký học sinh. body: `{ name, rollNum, password, sclassName, adminID, ... }`.
+- POST `/StudentLogin` — Đăng nhập học sinh. body: `{ rollNum, studentName, password }`.
+- POST `/SubjectCreate` — Tạo môn cho lớp. body: `{ subjects: [{ subName, subCode, sessions }], sclassName, adminID }`.
+- PUT `/StudentAttendance/:id` — Thêm/cập nhật điểm danh cho 1 học sinh. body: `{ subName, status, date }`.
+- PUT `/UpdateExamResult/:id` — Thêm/cập nhật điểm thi cho học sinh. body: `{ subName, marksObtained }`.
 
-## Features
+> Lưu ý: nhiều endpoint trả về message khi không tìm thấy hoặc khi lỗi (ví dụ "Không tìm thấy học sinh").
 
-- **User Roles:** The system supports three user roles: Admin, Teacher, and Student. Each role has specific functionalities and access levels.
 
-- **Admin Dashboard:** Administrators can add new students and teachers, create classes and subjects, manage user accounts, and oversee system settings.
+## 🧭 **Hướng dẫn sử dụng nhanh (Frontend)**
 
-- **Attendance Tracking:** Teachers can easily take attendance for their classes, mark students as present or absent, and generate attendance reports.
+1. Cài đặt & chạy backend:
+   - cd `backend` → `npm install` → tạo `.env` với `MONGO_URL` và `SECRET_KEY` → `npm start`.
+2. Cài đặt & chạy frontend:
+   - cd `frontend` → `npm install` → (nếu cần) tạo `.env` với `REACT_APP_BASE_URL=http://localhost:5000` → `npm start`.
+3. Các màn hình chính trên Frontend (theo vai trò):
+   - Admin Dashboard: quản lý Lớp / Môn / Học sinh / Giáo viên / Thông báo / Khiếu nại.
+   - Teacher Dashboard: xem lớp/môn, điểm danh giáo viên, xem/sửa điểm cho học sinh khi có quyền.
+   - Student Dashboard: xem profile, bảng/biểu đồ điểm (`/Student/subjects`), xem điểm danh (`/Student/attendance`), gửi khiếu nại.
+4. Các thao tác điển hình: thêm học sinh (Admin), thêm môn cho lớp (Admin), giáo viên chấm điểm (PUT `/UpdateExamResult/:id`), giáo viên điểm danh (POST `/TeacherAttendance/:id`).
 
-- **Performance Assessment:** Teachers can assess students' performance by providing marks and feedback. Students can view their marks and track their progress over time.
 
-- **Data Visualization:** Students can visualize their performance data through interactive charts and tables, helping them understand their academic performance at a glance.
+### 🔧 Frontend scripts (Create React App)
+- `npm start` — Runs the app in development mode (open http://localhost:3000). The page reloads on code changes.
+- `npm test` — Launches the test runner in interactive watch mode.
+- `npm run build` — Builds the app for production to the `build` folder (minified, hashed filenames).
+- `npm run eject` — Ejects the create-react-app configuration (one-way operation; use with caution).
 
-- **Communication:** Users can communicate effortlessly through the system. Teachers can send messages to students and vice versa, promoting effective communication and collaboration.
+See the official Create React App docs for more details: https://facebook.github.io/create-react-app/docs/getting-started
 
-## Technologies Used
+> Note: After running `npm run build` you can deploy the `build` folder to Netlify, Vercel, or any static hosting. For Netlify set the publish directory to `build` and build command `npm run build`.
 
-- Frontend: React.js, Material UI, Redux
-- Backend: Node.js, Express.js
-- Database: MongoDB
 
-<br>
+## 📌 **Ví dụ nhanh (curl)**
 
-# Installation
+- Đăng nhập học sinh:
 
-Clone the project:
-
-```
-git clone https://github.com/Yogndrr/MERN-School-Management-System.git
-```
-
-There are three branches in this repository. Each serves a different purpose.
-
-`main` contains the work that reflects my current standards. I am rebuilding the project architecture here with updated patterns, cleaner structure, and better practices than the original version.
-
-`community-version` collects community contributions and external PRs. It stays separate from main while I rebuild the core.
-
-`legacy-version` contains the same code shown in the YouTube tutorial. If you came from the video and want the exact version demonstrated there, switch to this branch after cloning.
-Open a terminal and paste this command to switch to the `legacy-version` branch. But if you want to try the latest one then you can stay in the main branch.
-
-```
-git checkout legacy-version
-```
-
-Open two terminals.
-
-Backend setup:
-
-```
-cd backend
-npm install
-```
-
-Create a .env file in the backend folder. Add the following:
-
-```
-MONGO_URL = mongodb://127.0.0.1/smsproject
-
-SECRET_KEY = 'secret123key'
+```bash
+curl -X POST http://localhost:5000/StudentLogin -H "Content-Type: application/json" -d '{"rollNum":"123","studentName":"An","password":"pass"}'
 ```
 
-Fill MONGO_URL using the instructions below. SECRET_KEY is any random string.
+- Thêm môn cho lớp (Admin):
 
-Start the backend:
-
-```
-npm start
+```bash
+curl -X POST http://localhost:5000/SubjectCreate -H "Content-Type: application/json" -d '{"subjects":[{"subName":"Toán","subCode":"MTH101","sessions":20}],"sclassName":"<classId>","adminID":"<adminId>"}'
 ```
 
-Frontend setup:
+- Cập nhật điểm học sinh:
 
-```
-cd frontend
-npm install
-```
-
-Create a .env file in the frontend folder and add:
-
-```
-REACT_APP_BASE_URL=http://localhost:5000
+```bash
+curl -X PUT http://localhost:5000/UpdateExamResult/<studentId> -H "Content-Type: application/json" -d '{"subName":"<subjectId>","marksObtained":85}'
 ```
 
-If a .env file already exists and the line is commented out, remove the comment.
 
-```
-npm start
-```
+## 🛠️ **Ghi chú cho developer**
+- Bảo mật: hiện **Teacher/Student** dùng bcrypt cho password; **Admin** hiện lưu password plaintext trong code (cần hash bằng bcrypt trước khi lưu). Đây là việc nên sửa ngay khi deploy.
+- Cải tiến: thêm middleware xác thực (JWT), thêm kiểm tra quyền (role-based access control), thêm tests và Postman/OpenAPI spec.
 
-Frontend runs at localhost:3000. Backend runs at localhost:5000.
+---
 
-# MONGO_URL instructions
+## 📚 API Reference — Endpoints (Chi tiết)
 
-Use one of these two methods depending on whether you want a local development database or a cloud database.
+Dưới đây là danh sách endpoint chi tiết theo nhóm tài nguyên. Mỗi mục gồm: METHOD, PATH, Mô tả, Body mẫu và Ghi chú/Response mẫu.
 
-## Option 1 — Local MongoDB
+---
 
-You need two components: the MongoDB server and Compass.
+### ✅ Admin
 
-Install MongoDB Community Server from <a href="https://mongodb.com/try/download/community">mongodb.com/try/download/community</a>. This install includes the mongod server. Install Compass from <a href="https://mongodb.com/try/download/compass">mongodb.com/try/download/compass</a>..
+- POST `/AdminReg`
+  - Mô tả: Tạo tài khoản Admin.
+  - Body (JSON):
+    ```json
+    { "name": "Tên", "email": "a@x.com", "schoolName": "Trường A", "password": "pass" }
+    ```
+  - Response thành công: đối tượng Admin (password được loại bỏ trong response).
+  - Lỗi: `{ message: 'Email đã tồn tại' }` (email trùng), status 500 cho lỗi server.
 
-Start the MongoDB service. On Windows or macOS the installer usually sets it to run automatically. If it is not running, you can start it manually:
+- POST `/AdminLogin`
+  - Mô tả: Đăng nhập Admin.
+  - Body (JSON): `{ "email": "a@x.com", "password": "pass" }`
+  - Response thành công: đối tượng Admin (password không trả về).
+  - Lỗi: `{ message: "Cần email và mật khẩu" }` hoặc `{ message: "Mật khẩu không đúng" }` / `{ message: "Không tìm thấy người dùng" }`.
 
-```
-mongod
-```
+- GET `/Admin/:id`
+  - Mô tả: Lấy chi tiết Admin theo id.
+  - Response: đối tượng Admin (không chứa password) hoặc `{ message: "Không tìm thấy quản trị" }`.
 
-Open Compass. Connect using:
+- PUT `/Admin/:id`
+  - Mô tả: Cập nhật thông tin Admin.
+  - Body: các trường cần cập nhật (ví dụ `schoolName`, `name`).
+  - Response: admin đã cập nhật hoặc message lỗi.
 
-```
-mongodb://127.0.0.1:27017/yourdbname
-```
+- DELETE `/Admin/:id`
+  - Mô tả: Xóa admin và cascade xóa dữ liệu liên quan (lớp, học sinh, giáo viên, môn, thông báo, khiếu nại).
 
-Replace yourdbname with any name. Use that full connection string as your MONGO_URL.
+---
 
-## Option 2 — MongoDB Atlas (cloud)
+### ✅ Student (Học sinh)
 
-Create an Atlas account at <a href="https://mongodb.com/atlas">mongodb.com/atlas</a> and create a free cluster.
+- POST `/StudentReg`
+  - Mô tả: Đăng ký học sinh.
+  - Body (JSON): ví dụ
+    ```json
+    {
+      "name": "Nguyễn A",
+      "rollNum": "01234",
+      "password": "pass",
+      "sclassName": "<classId>",
+      "adminID": "<adminId>",
+      "otherFields": "..."
+    }
+    ```
+  - Ghi chú: Password được hash trước khi lưu.
 
-In the cluster page, select:
+- POST `/StudentLogin`
+  - Body: `{ "rollNum": "01234", "studentName": "Nguyễn A", "password": "pass" }`
+  - Response: đối tượng student (không trả password, có populate `school` và `sclassName`).
 
-Database → Connect → Connect your application
+- GET `/Students/:id` (id = schoolId)
+  - Mô tả: Lấy danh sách học sinh theo trường.
 
-Atlas shows you a connection string:
+- GET `/Student/:id`
+  - Mô tả: Lấy chi tiết 1 học sinh (populate `examResult`, `attendance`, `sclassName`, `school`).
 
-```
-mongodb+srv://<user>:<password>@<cluster-url>/<dbname>?retryWrites=true&w=majority
-```
+- PUT `/Student/:id`
+  - Mô tả: Cập nhật thông tin học sinh (nếu cập nhật password sẽ hash mới).
+  - Body: các trường cần cập nhật.
 
-Replace the placeholders. Use that full string as your MONGO_URL.
+- PUT `/UpdateExamResult/:id`
+  - Mô tả: Thêm hoặc cập nhật điểm cho học sinh.
+  - Body: `{ "subName": "<subjectId>", "marksObtained": 85 }`
+  - Response: student đã cập nhật (tùy vào kết quả save).
 
-Use Atlas if you plan to deploy the project.
+- PUT `/StudentAttendance/:id`
+  - Mô tả: Thêm/cập nhật bản ghi điểm danh cho học sinh.
+  - Body: `{ "subName": "<subjectId>", "status": "Present|Absent", "date": "YYYY-MM-DD" }`
+  - Ghi chú: Controller kiểm tra giới hạn sessions của môn; nếu quá giới hạn trả `{ message: 'Đã đạt giới hạn điểm danh' }`.
 
-# Branch selection
+- PUT `/RemoveAllStudentsSubAtten/:id` (id = subjectId)
+  - Mô tả: Xóa tất cả bản ghi điểm danh của mọi học sinh cho 1 môn.
 
-If you are learning from the YouTube video and want the same project the tutorial was based on, use legacy-version.
+- PUT `/RemoveAllStudentsAtten/:id` (id = schoolId)
+  - Mô tả: Xóa toàn bộ attendance cho tất cả học sinh của 1 trường.
 
-If you want the original project but also want to apply new changes yourself, stay on legacy-version and modify it as needed.
+- PUT `/RemoveStudentSubAtten/:id` (id = studentId)
+  - Mô tả: Xóa attendance của 1 học sinh cho môn cụ thể. Body: `{ "subId": "<subjectId>" }`.
 
-If you want the updated architecture, use main. This is under active development and contains major improvements.
+- PUT `/RemoveStudentAtten/:id` (id = studentId)
+  - Mô tả: Xóa toàn bộ attendance của 1 học sinh.
 
-If you want to contribute, use community-version. All external PRs land there.
+- DELETE `/Students/:id` (id = schoolId)
+  - Mô tả: Xóa tất cả học sinh trong 1 trường.
 
-# Deployment
+- DELETE `/StudentsClass/:id` (id = classId)
+  - Mô tả: Xóa tất cả học sinh trong 1 lớp.
 
-There are multiple ways to deploy the project. Use any combination depending on how you prefer to manage the client and server.
+- DELETE `/Student/:id` (id = studentId)
+  - Mô tả: Xóa 1 học sinh.
 
-## Deploying the backend
+---
 
-### Render
+### ✅ Teacher (Giáo viên)
 
-Render works well for Express-based APIs and requires almost no infrastructure setup.
+- POST `/TeacherReg`
+  - Body (JSON):
+    ```json
+    { "name":"GV A", "email":"a@x.com", "password":"pass", "role":"teacher", "school":"<adminId>", "teachSubject":"<subjectId>", "teachSclass":"<classId>" }
+    ```
+  - Ghi chú: password được hash trước khi lưu.
 
-1. Push your code to GitHub.
-2. Create a new Web Service in Render.
-3. Select your backend folder as the root.
-4. Set the build command to:
+- POST `/TeacherLogin`
+  - Body: `{ "email":"a@x.com", "password":"pass" }`
+  - Response: đối tượng teacher (populate `teachSubject`, `teachSclass`, `school`).
 
-```
-npm install
-```
+- GET `/Teachers/:id` (id = schoolId)
+  - Mô tả: Danh sách giáo viên theo trường.
 
-5. Set the start command to:
+- GET `/Teacher/:id`
+  - Mô tả: Chi tiết giáo viên.
 
-```
-npm start
-```
+- PUT `/TeacherSubject`
+  - Body: `{ "teacherId": "<teacherId>", "teachSubject": "<subjectId>" }`
+  - Mô tả: Gán môn mới cho giáo viên và cập nhật tài liệu Subject.
 
-6. Add the required environment variables from your .env file (MONGO_URL and SECRET_KEY).
+- POST `/TeacherAttendance/:id` (id = teacherId)
+  - Body: `{ "status": "Present|Absent", "date": "YYYY-MM-DD" }`
+  - Mô tả: Thêm/cập nhật attendance cho giáo viên.
 
-Render automatically redeploys on every push.
+- DELETE `/Teachers/:id` (id = schoolId) — Xóa tất cả giáo viên trường.
+- DELETE `/TeachersClass/:id` (id = classId) — Xóa tất cả giáo viên theo lớp.
+- DELETE `/Teacher/:id` — Xóa 1 giáo viên (và unset trường `teacher` ở subject nếu cần).
 
-## Deploying the frontend
+---
 
-### Netlify
+### ✅ Notice (Thông báo)
 
-Netlify builds and serves the React application.
+- POST `/NoticeCreate`
+  - Body: `{ "title": "...", "details": "...", "date": "YYYY-MM-DD", "adminID": "<adminId>" }`
+  - Mô tả: Tạo thông báo cho trường.
 
-Steps:
+- GET `/NoticeList/:id` (id = schoolId)
+  - Mô tả: Danh sách thông báo theo trường.
 
-1. Push your frontend folder to GitHub.
-2. Create a new Netlify project.
-3. Set the build command:
+- PUT `/Notice/:id` — Cập nhật thông báo.
+- DELETE `/Notice/:id` — Xóa 1 thông báo.
+- DELETE `/Notices/:id` — Xóa tất cả thông báo của 1 trường.
 
-```
-npm run build
-```
+---
 
-4. Set the publish directory:
+### ✅ Complain (Khiếu nại)
 
-```
-build
-```
+- POST `/ComplainCreate`
+  - Body: `{ "title": "...", "details": "...", "user": "<userId>", "school": "<schoolId>" }` (controller nhận `req.body`).
 
-5. Add an environment variable if needed for the API endpoint:
+- GET `/ComplainList/:id` (id = schoolId)
+  - Mô tả: Danh sách khiếu nại theo trường (populate `user` name).
 
-```
-REACT_APP_BASE_URL=https://your-backend-url
-```
+---
 
-Netlify auto-builds on every push.
+### ✅ Sclass (Lớp)
 
-### Vercel
+- POST `/SclassCreate`
+  - Body: `{ "sclassName": "10A", "adminID": "<adminId>" }`
+  - Response: sclass mới.
 
-Vercel deploys React-based frontends easily. Same build command. Same publish directory.
+- GET `/SclassList/:id` (id = schoolId)
+  - Mô tả: Danh sách lớp theo trường.
 
-## Connecting frontend and backend
+- GET `/Sclass/:id` — Lấy chi tiết lớp (populate `school`).
+- GET `/Sclass/Students/:id` — Lấy danh sách học sinh của lớp.
+- DELETE `/Sclass/:id` — Xóa lớp (và xóa students/subjects/teachers liên quan).
+- DELETE `/Sclasses/:id` — Xóa tất cả lớp của 1 trường.
 
-After deploying both sides, set the frontend environment variable to point to your backend URL. For example:
+---
 
-```
-REACT_APP_BASE_URL=https://your-backend.onrender.com
-```
+### ✅ Subject (Môn học)
 
-Rebuild the frontend when deploying to Netlify or Vercel.
+- POST `/SubjectCreate`
+  - Body (JSON):
+    ```json
+    {
+      "subjects": [{ "subName": "Toán", "subCode": "MTH101", "sessions": 20 }],
+      "sclassName": "<classId>",
+      "adminID": "<adminId>"
+    }
+    ```
+  - Mô tả: Tạo nhiều môn cho một lớp.
+  - Lỗi: trả `{ message: 'Mã môn đã tồn tại, vui lòng chọn mã khác' }` nếu subCode trùng.
 
-# Notes
+- GET `/AllSubjects/:id` (id = schoolId) — Danh sách tất cả môn của trường.
+- GET `/ClassSubjects/:id` (id = classId) — Danh sách môn của lớp.
+- GET `/FreeSubjectList/:id` (id = classId) — Danh sách môn chưa có giáo viên.
+- GET `/Subject/:id` — Chi tiết môn (populate `sclassName`, `teacher`).
 
-The legacy-version branch remains available for anyone who needs the original two-year-old tutorial code. The main branch will continue to evolve as I rebuild the project's architecture using the practices I use today. The community-version branch is available for contributions without affecting the core redesign.
+- DELETE `/Subject/:id` — Xóa 1 môn (unset `teachSubject` trong Teacher, remove examResult & attendance objects from Student docs).
+- DELETE `/Subjects/:id` (id = schoolId) — Xóa tất cả môn của trường (cập nhật teachers & students liên quan).
+- DELETE `/SubjectsClass/:id` (id = classId) — Xóa tất cả môn của lớp.
+
+---
+
+## 📝 Response & lỗi chung
+- Thông thường các API trả về đối tượng JSON (đối tượng mới/tài nguyên) khi thành công. Khi lỗi logic (ví dụ không tìm thấy) API thường trả `{ message: "Không tìm thấy ..." }`.
+- Lỗi server trả status 500 cùng body lỗi chi tiết.
+
+---
+
+Nếu bạn muốn, mình có thể:
+- Xuất phần này thành `API.md` chi tiết hoặc tạo **Postman collection** / **OpenAPI spec** tự động. Chọn 1 trong các định dạng: `API.md`, `Postman`, `OpenAPI (YAML/JSON)` và mình sẽ tạo ngay cùng ví dụ request/response.  
+
+---
+
