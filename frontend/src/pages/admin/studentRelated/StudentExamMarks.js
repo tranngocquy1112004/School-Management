@@ -75,12 +75,12 @@ const StudentExamMarks = ({ situation }) => {
         else if (error) {
             setLoader(false)
             setShowPopup(true)
-            setMessage("error")
+            setMessage("Lỗi")
         }
         else if (statestatus === "added") {
             setLoader(false)
             setShowPopup(true)
-            setMessage("Done Successfully")
+            setMessage("Thành công")
         }
     }, [response, statestatus, error])
 
@@ -89,7 +89,7 @@ const StudentExamMarks = ({ situation }) => {
             {loading
                 ?
                 <>
-                    <div>Loading...</div>
+                    <div>Đang tải...</div>
                 </>
                 :
                 <>
@@ -111,11 +111,11 @@ const StudentExamMarks = ({ situation }) => {
                         >
                             <Stack spacing={1} sx={{ mb: 3 }}>
                                 <Typography variant="h4">
-                                    Student Name: {userDetails.name}
+                                    Học sinh: {userDetails.name}
                                 </Typography>
                                 {currentUser.teachSubject &&
                                     <Typography variant="h4">
-                                        Subject Name: {currentUser.teachSubject?.subName}
+                                        Môn học: {currentUser.teachSubject?.subName}
                                     </Typography>
                                 }
                             </Stack>
@@ -125,13 +125,13 @@ const StudentExamMarks = ({ situation }) => {
                                         situation === "Student" &&
                                         <FormControl fullWidth>
                                             <InputLabel id="demo-simple-select-label">
-                                                Select Subject
+                                                Chọn môn
                                             </InputLabel>
                                             <Select
                                                 labelId="demo-simple-select-label"
                                                 id="demo-simple-select"
                                                 value={subjectName}
-                                                label="Choose an option"
+                                                label="Chọn"
                                                 onChange={changeHandler} required
                                             >
                                                 {subjectsList ?
@@ -142,14 +142,14 @@ const StudentExamMarks = ({ situation }) => {
                                                     ))
                                                     :
                                                     <MenuItem value="Select Subject">
-                                                        Add Subjects For Marks
+                                                        Thêm môn để nhập điểm
                                                     </MenuItem>
                                                 }
                                             </Select>
                                         </FormControl>
                                     }
                                     <FormControl>
-                                        <TextField type="number" label='Enter marks'
+                                        <TextField type="number" label='Nhập điểm'
                                             value={marksObtained} required
                                             onChange={(e) => setMarksObtained(e.target.value)}
                                             InputLabelProps={{
@@ -166,7 +166,7 @@ const StudentExamMarks = ({ situation }) => {
                                     type="submit"
                                     disabled={loader}
                                 >
-                                    {loader ? <CircularProgress size={24} color="inherit" /> : "Submit"}
+                                    {loader ? <CircularProgress size={24} color="inherit" /> : "Gửi"}
                                 </BlueButton>
                             </form>
                         </Box>

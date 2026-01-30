@@ -8,7 +8,8 @@ import TableTemplate from '../../../components/TableTemplate';
 
 const SeeComplains = () => {
 
-  const label = { inputProps: { 'aria-label': 'Checkbox demo' } };  const dispatch = useDispatch();
+  const label = { inputProps: { 'aria-label': 'Ô chọn' } };
+  const dispatch = useDispatch();
   const { complainsList, loading, error, response } = useSelector((state) => state.complain);
   const { currentUser } = useSelector(state => state.user)
 
@@ -21,14 +22,14 @@ const SeeComplains = () => {
   }
 
   const complainColumns = [
-    { id: 'user', label: 'User', minWidth: 170 },
-    { id: 'complaint', label: 'Complaint', minWidth: 100 },
-    { id: 'date', label: 'Date', minWidth: 170 },
+    { id: 'user', label: 'Người gửi', minWidth: 170 },
+    { id: 'complaint', label: 'Nội dung', minWidth: 100 },
+    { id: 'date', label: 'Ngày', minWidth: 170 },
   ];
 
   const complainRows = complainsList && complainsList.length > 0 && complainsList.map((complain) => {
     const date = new Date(complain.date);
-    const dateString = date.toString() !== "Invalid Date" ? date.toISOString().substring(0, 10) : "Invalid Date";
+    const dateString = date.toString() !== "Invalid Date" ? date.toISOString().substring(0, 10) : "Ngày không hợp lệ";
     return {
       user: complain.user.name,
       complaint: complain.complaint,
@@ -48,12 +49,12 @@ const SeeComplains = () => {
   return (
     <>
       {loading ?
-        <div>Loading...</div>
+        <div>Đang tải...</div>
         :
         <>
           {response ?
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
-              No Complains Right Now
+              Hiện chưa có khiếu nại
             </Box>
             :
             <Paper sx={{ width: '100%', overflow: 'hidden' }}>

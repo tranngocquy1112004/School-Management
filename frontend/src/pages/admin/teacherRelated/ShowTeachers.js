@@ -31,12 +31,12 @@ const ShowTeachers = () => {
     const [message, setMessage] = useState("");
 
     if (loading) {
-        return <div>Loading...</div>;
+        return <div>Đang tải...</div>;
     } else if (response) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>
                 <GreenButton variant="contained" onClick={() => navigate("/Admin/teachers/chooseclass")}>
-                    Add Teacher
+                    Thêm giáo viên
                 </GreenButton>
             </Box>
         );
@@ -45,20 +45,15 @@ const ShowTeachers = () => {
     }
 
     const deleteHandler = (deleteID, address) => {
-        console.log(deleteID);
-        console.log(address);
-        setMessage("Sorry the delete function has been disabled for now.")
-        setShowPopup(true)
-
-        // dispatch(deleteUser(deleteID, address)).then(() => {
-        //     dispatch(getAllTeachers(currentUser._id));
-        // });
+        dispatch(deleteUser(deleteID, address)).then(() => {
+            dispatch(getAllTeachers(currentUser._id));
+        });
     };
 
     const columns = [
-        { id: 'name', label: 'Name', minWidth: 170 },
-        { id: 'teachSubject', label: 'Subject', minWidth: 100 },
-        { id: 'teachSclass', label: 'Class', minWidth: 170 },
+        { id: 'name', label: 'Họ tên', minWidth: 170 },
+        { id: 'teachSubject', label: 'Môn học', minWidth: 100 },
+        { id: 'teachSclass', label: 'Lớp', minWidth: 170 },
     ];
 
     const rows = teachersList.map((teacher) => {
@@ -73,11 +68,11 @@ const ShowTeachers = () => {
 
     const actions = [
         {
-            icon: <PersonAddAlt1Icon color="primary" />, name: 'Add New Teacher',
+            icon: <PersonAddAlt1Icon color="primary" />, name: 'Thêm giáo viên',
             action: () => navigate("/Admin/teachers/chooseclass")
         },
         {
-            icon: <PersonRemoveIcon color="error" />, name: 'Delete All Teachers',
+            icon: <PersonRemoveIcon color="error" />, name: 'Xóa tất cả giáo viên',
             action: () => deleteHandler(currentUser._id, "Teachers")
         },
     ];
@@ -98,7 +93,7 @@ const ShowTeachers = () => {
                                 </StyledTableCell>
                             ))}
                             <StyledTableCell align="center">
-                                Actions
+                                Thao tác
                             </StyledTableCell>
                         </StyledTableRow>
                     </TableHead>
@@ -120,7 +115,7 @@ const ShowTeachers = () => {
                                                                 onClick={() => {
                                                                     navigate(`/Admin/teachers/choosesubject/${row.teachSclassID}/${row.id}`)
                                                                 }}>
-                                                                Add Subject
+                                                                Thêm môn
                                                             </Button>
                                                         )}
                                                     </StyledTableCell>
@@ -138,7 +133,7 @@ const ShowTeachers = () => {
                                             </IconButton>
                                             <BlueButton variant="contained"
                                                 onClick={() => navigate("/Admin/teachers/teacher/" + row.id)}>
-                                                View
+                                                Xem
                                             </BlueButton>
                                         </StyledTableCell>
                                     </StyledTableRow>
@@ -153,6 +148,10 @@ const ShowTeachers = () => {
                 count={rows.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
+                labelRowsPerPage="Số dòng mỗi trang"
+                labelDisplayedRows={({ from, to, count }) =>
+                    `${from}-${to} / ${count !== -1 ? count : `nhiều hơn ${to}`}`
+                }
                 onPageChange={(event, newPage) => setPage(newPage)}
                 onRowsPerPageChange={(event) => {
                     setRowsPerPage(parseInt(event.target.value, 5));

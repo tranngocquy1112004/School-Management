@@ -33,38 +33,38 @@ const TeacherHomePage = () => {
                 <Grid container spacing={3}>
                     <Grid item xs={12} md={3} lg={3}>
                         <StyledPaper>
-                            <img src={Students} alt="Students" />
+                            <img src={Students} alt="Học sinh" />
                             <Title>
-                                Class Students
+                                Học sinh trong lớp
                             </Title>
                             <Data start={0} end={numberOfStudents} duration={2.5} />
                         </StyledPaper>
                     </Grid>
                     <Grid item xs={12} md={3} lg={3}>
                         <StyledPaper>
-                            <img src={Lessons} alt="Lessons" />
+                            <img src={Lessons} alt="Buổi học" />
                             <Title>
-                                Total Lessons
+                                Tổng buổi học
                             </Title>
                             <Data start={0} end={numberOfSessions} duration={5} />
                         </StyledPaper>
                     </Grid>
                     <Grid item xs={12} md={3} lg={3}>
                         <StyledPaper>
-                            <img src={Tests} alt="Tests" />
+                            <img src={Tests} alt="Bài kiểm tra" />
                             <Title>
-                                Tests Taken
+                                Bài kiểm tra
                             </Title>
                             <Data start={0} end={24} duration={4} />
                         </StyledPaper>
                     </Grid>
                     <Grid item xs={12} md={3} lg={3}>
                         <StyledPaper>
-                            <img src={Time} alt="Time" />
+                            <img src={Time} alt="Thời gian" />
                             <Title>
-                                Total Hours
+                                Tổng giờ
                             </Title>
-                            <Data start={0} end={30} duration={4} suffix="hrs"/>                        </StyledPaper>
+                            <Data start={0} end={30} duration={4} suffix=" giờ"/>                        </StyledPaper>
                     </Grid>
                     <Grid item xs={12}>
                         <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>

@@ -55,8 +55,8 @@ const TeacherViewStudent = () => {
     const overallAbsentPercentage = 100 - overallAttendancePercentage;
 
     const chartData = [
-        { name: 'Present', value: overallAttendancePercentage },
-        { name: 'Absent', value: overallAbsentPercentage }
+        { name: 'Có mặt', value: overallAttendancePercentage },
+        { name: 'Vắng', value: overallAbsentPercentage }
     ];
 
     return (
@@ -64,20 +64,20 @@ const TeacherViewStudent = () => {
             {loading
                 ?
                 <>
-                    <div>Loading...</div>
+                <div>Đang tải...</div>
                 </>
                 :
                 <div>
-                    Name: {userDetails.name}
+                    Họ tên: {userDetails.name}
                     <br />
-                    Roll Number: {userDetails.rollNum}
+                    Số báo danh: {userDetails.rollNum}
                     <br />
-                    Class: {sclassName.sclassName}
+                    Lớp: {sclassName.sclassName}
                     <br />
-                    School: {studentSchool.schoolName}
+                    Trường: {studentSchool.schoolName}
                     <br /><br />
 
-                    <h3>Attendance:</h3>
+                    <h3>Chuyên cần:</h3>
                     {subjectAttendance && Array.isArray(subjectAttendance) && subjectAttendance.length > 0
                         &&
                         <>
@@ -89,11 +89,11 @@ const TeacherViewStudent = () => {
                                         <Table key={index}>
                                             <TableHead>
                                                 <StyledTableRow>
-                                                    <StyledTableCell>Subject</StyledTableCell>
-                                                    <StyledTableCell>Present</StyledTableCell>
-                                                    <StyledTableCell>Total Sessions</StyledTableCell>
-                                                    <StyledTableCell>Attendance Percentage</StyledTableCell>
-                                                    <StyledTableCell align="center">Actions</StyledTableCell>
+                                                <StyledTableCell>Môn học</StyledTableCell>
+                                                <StyledTableCell>Có mặt</StyledTableCell>
+                                                <StyledTableCell>Tổng buổi</StyledTableCell>
+                                                <StyledTableCell>Tỉ lệ chuyên cần</StyledTableCell>
+                                                <StyledTableCell align="center">Thao tác</StyledTableCell>
                                                 </StyledTableRow>
                                             </TableHead>
 
@@ -105,7 +105,7 @@ const TeacherViewStudent = () => {
                                                     <StyledTableCell>{subjectAttendancePercentage}%</StyledTableCell>
                                                     <StyledTableCell align="center">
                                                         <Button variant="contained" onClick={() => handleOpen(subId)}>
-                                                            {openStates[subId] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}Details
+                                                            {openStates[subId] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}Chi tiết
                                                         </Button>
                                                     </StyledTableCell>
                                                 </StyledTableRow>
@@ -114,26 +114,28 @@ const TeacherViewStudent = () => {
                                                         <Collapse in={openStates[subId]} timeout="auto" unmountOnExit>
                                                             <Box sx={{ margin: 1 }}>
                                                                 <Typography variant="h6" gutterBottom component="div">
-                                                                    Attendance Details
+                                                                    Chi tiết điểm danh
                                                                 </Typography>
                                                                 <Table size="small" aria-label="purchases">
                                                                     <TableHead>
                                                                         <StyledTableRow>
-                                                                            <StyledTableCell>Date</StyledTableCell>
-                                                                            <StyledTableCell align="right">Status</StyledTableCell>
+                                                                        <StyledTableCell>Ngày</StyledTableCell>
+                                                                        <StyledTableCell align="right">Trạng thái</StyledTableCell>
                                                                         </StyledTableRow>
                                                                     </TableHead>
                                                                     <TableBody>
                                                                         {allData.map((data, index) => {
                                                                             const date = new Date(data.date);
-                                                                            const dateString = date.toString() !== "Invalid Date" ? date.toISOString().substring(0, 10) : "Invalid Date";
+                                                                            const dateString = date.toString() !== "Invalid Date" ? date.toISOString().substring(0, 10) : "Ngày không hợp lệ";
                                                                             return (
-                                                                                <StyledTableRow key={index}>
-                                                                                    <StyledTableCell component="th" scope="row">
-                                                                                        {dateString}
-                                                                                    </StyledTableCell>
-                                                                                    <StyledTableCell align="right">{data.status}</StyledTableCell>
-                                                                                </StyledTableRow>
+                                                                            <StyledTableRow key={index}>
+                                                                                <StyledTableCell component="th" scope="row">
+                                                                                    {dateString}
+                                                                                </StyledTableCell>
+                                                                                <StyledTableCell align="right">
+                                                                                    {data.status === "Present" ? "Có mặt" : "Vắng"}
+                                                                                </StyledTableCell>
+                                                                            </StyledTableRow>
                                                                             );
                                                                         })}
                                                                     </TableBody>
@@ -151,7 +153,7 @@ const TeacherViewStudent = () => {
                                 }
                             })}
                             <div>
-                                Overall Attendance Percentage: {overallAttendancePercentage.toFixed(2)}%
+                                Tỉ lệ chuyên cần tổng: {overallAttendancePercentage.toFixed(2)}%
                             </div>
 
                             <CustomPieChart data={chartData} />
@@ -166,10 +168,10 @@ const TeacherViewStudent = () => {
                             )
                         }
                     >
-                        Add Attendance
+                        Thêm điểm danh
                     </Button>
                     <br /><br /><br />
-                    <h3>Subject Marks:</h3>
+                    <h3>Điểm môn học:</h3>
 
                     {subjectMarks && Array.isArray(subjectMarks) && subjectMarks.length > 0 &&
                         <>
@@ -179,8 +181,8 @@ const TeacherViewStudent = () => {
                                         <Table key={index}>
                                             <TableHead>
                                                 <StyledTableRow>
-                                                    <StyledTableCell>Subject</StyledTableCell>
-                                                    <StyledTableCell>Marks</StyledTableCell>
+                                                <StyledTableCell>Môn học</StyledTableCell>
+                                                <StyledTableCell>Điểm</StyledTableCell>
                                                 </StyledTableRow>
                                             </TableHead>
                                             <TableBody>
@@ -204,7 +206,7 @@ const TeacherViewStudent = () => {
                             navigate(
                                 `/Teacher/class/student/marks/${studentID}/${teachSubjectID}`
                             )}>
-                        Add Marks
+                        Thêm điểm
                     </PurpleButton>
                     <br /><br /><br />
                 </div>

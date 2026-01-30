@@ -48,7 +48,7 @@ const AddClass = () => {
             setLoader(false)
         }
         else if (status === 'error') {
-            setMessage("Network Error")
+            setMessage("Lỗi mạng")
             setShowPopup(true)
             setLoader(false)
         }
@@ -63,14 +63,14 @@ const AddClass = () => {
                     }}>
                         <img
                             src={Classroom}
-                            alt="classroom"
+                            alt="lớp học"
                             style={{ width: '80%' }}
                         />
                     </Stack>
                     <form onSubmit={submitHandler}>
                         <Stack spacing={3}>
                             <TextField
-                                label="Create a class"
+                                label="Tạo lớp"
                                 variant="outlined"
                                 value={sclassName}
                                 onChange={(event) => {
@@ -86,10 +86,10 @@ const AddClass = () => {
                                 type="submit"
                                 disabled={loader}
                             >
-                                {loader ? <CircularProgress size={24} color="inherit" /> : "Create"}
+                                {loader ? <CircularProgress size={24} color="inherit" /> : "Tạo"}
                             </BlueButton>
                             <Button variant="outlined" onClick={() => navigate(-1)}>
-                                Go Back
+                                Quay lại
                             </Button>
                         </Stack>
                     </form>

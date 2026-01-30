@@ -65,16 +65,16 @@ const ViewStdAttendance = () => {
         return (
             <>
                 <Typography variant="h4" align="center" gutterBottom>
-                    Attendance
+                    Chuyên cần
                 </Typography>
                 <Table>
                     <TableHead>
                         <StyledTableRow>
-                            <StyledTableCell>Subject</StyledTableCell>
-                            <StyledTableCell>Present</StyledTableCell>
-                            <StyledTableCell>Total Sessions</StyledTableCell>
-                            <StyledTableCell>Attendance Percentage</StyledTableCell>
-                            <StyledTableCell align="center">Actions</StyledTableCell>
+                        <StyledTableCell>Môn học</StyledTableCell>
+                        <StyledTableCell>Có mặt</StyledTableCell>
+                        <StyledTableCell>Tổng buổi</StyledTableCell>
+                        <StyledTableCell>Tỉ lệ chuyên cần</StyledTableCell>
+                        <StyledTableCell align="center">Thao tác</StyledTableCell>
                         </StyledTableRow>
                     </TableHead>
                     {Object.entries(attendanceBySubject).map(([subName, { present, allData, subId, sessions }], index) => {
@@ -90,7 +90,7 @@ const ViewStdAttendance = () => {
                                     <StyledTableCell align="center">
                                         <Button variant="contained"
                                             onClick={() => handleOpen(subId)}>
-                                            {openStates[subId] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}Details
+                                            {openStates[subId] ? <KeyboardArrowUp /> : <KeyboardArrowDown />}Chi tiết
                                         </Button>
                                     </StyledTableCell>
                                 </StyledTableRow>
@@ -99,25 +99,27 @@ const ViewStdAttendance = () => {
                                         <Collapse in={openStates[subId]} timeout="auto" unmountOnExit>
                                             <Box sx={{ margin: 1 }}>
                                                 <Typography variant="h6" gutterBottom component="div">
-                                                    Attendance Details
+                                                    Chi tiết điểm danh
                                                 </Typography>
                                                 <Table size="small" aria-label="purchases">
                                                     <TableHead>
                                                         <StyledTableRow>
-                                                            <StyledTableCell>Date</StyledTableCell>
-                                                            <StyledTableCell align="right">Status</StyledTableCell>
+                                                        <StyledTableCell>Ngày</StyledTableCell>
+                                                        <StyledTableCell align="right">Trạng thái</StyledTableCell>
                                                         </StyledTableRow>
                                                     </TableHead>
                                                     <TableBody>
                                                         {allData.map((data, index) => {
                                                             const date = new Date(data.date);
-                                                            const dateString = date.toString() !== "Invalid Date" ? date.toISOString().substring(0, 10) : "Invalid Date";
+                                                            const dateString = date.toString() !== "Invalid Date" ? date.toISOString().substring(0, 10) : "Ngày không hợp lệ";
                                                             return (
                                                                 <StyledTableRow key={index}>
                                                                     <StyledTableCell component="th" scope="row">
                                                                         {dateString}
                                                                     </StyledTableCell>
-                                                                    <StyledTableCell align="right">{data.status}</StyledTableCell>
+                                                                    <StyledTableCell align="right">
+                                                                        {data.status === "Present" ? "Có mặt" : "Vắng"}
+                                                                    </StyledTableCell>
                                                                 </StyledTableRow>
                                                             )
                                                         })}
@@ -133,7 +135,7 @@ const ViewStdAttendance = () => {
                     )}
                 </Table>
                 <div>
-                    Overall Attendance Percentage: {overallAttendancePercentage.toFixed(2)}%
+                    Tỉ lệ chuyên cần tổng: {overallAttendancePercentage.toFixed(2)}%
                 </div>
             </>
         )
@@ -151,7 +153,7 @@ const ViewStdAttendance = () => {
         <>
             {loading
                 ? (
-                    <div>Loading...</div>
+                    <div>Đang tải...</div>
                 )
                 :
                 <div>
@@ -162,23 +164,23 @@ const ViewStdAttendance = () => {
 
                             <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
                                 <BottomNavigation value={selectedSection} onChange={handleSectionChange} showLabels>
-                                    <BottomNavigationAction
-                                        label="Table"
-                                        value="table"
-                                        icon={selectedSection === 'table' ? <TableChartIcon /> : <TableChartOutlinedIcon />}
-                                    />
-                                    <BottomNavigationAction
-                                        label="Chart"
-                                        value="chart"
-                                        icon={selectedSection === 'chart' ? <InsertChartIcon /> : <InsertChartOutlinedIcon />}
-                                    />
+                                <BottomNavigationAction
+                                    label="Bảng"
+                                    value="table"
+                                    icon={selectedSection === 'table' ? <TableChartIcon /> : <TableChartOutlinedIcon />}
+                                />
+                                <BottomNavigationAction
+                                    label="Biểu đồ"
+                                    value="chart"
+                                    icon={selectedSection === 'chart' ? <InsertChartIcon /> : <InsertChartOutlinedIcon />}
+                                />
                                 </BottomNavigation>
                             </Paper>
                         </>
                         :
                         <>
                             <Typography variant="h6" gutterBottom component="div">
-                                Currently You Have No Attendance Details
+                                Hiện chưa có dữ liệu chuyên cần
                             </Typography>
                         </>
                     }

@@ -8,6 +8,10 @@ import {
     doneSuccess
 } from './teacherSlice';
 
+const extractErrorMessage = (error) => {
+    return (error && error.response && error.response.data && (error.response.data.message || error.response.data)) || error.message || 'Lỗi mạng';
+}
+
 export const getAllTeachers = (id) => async (dispatch) => {
     dispatch(getRequest());
 
@@ -19,7 +23,7 @@ export const getAllTeachers = (id) => async (dispatch) => {
             dispatch(getSuccess(result.data));
         }
     } catch (error) {
-        dispatch(getError(error));
+        dispatch(getError(extractErrorMessage(error)));
     }
 }
 
@@ -32,7 +36,7 @@ export const getTeacherDetails = (id) => async (dispatch) => {
             dispatch(doneSuccess(result.data));
         }
     } catch (error) {
-        dispatch(getError(error));
+        dispatch(getError(extractErrorMessage(error)));
     }
 }
 
@@ -45,6 +49,6 @@ export const updateTeachSubject = (teacherId, teachSubject) => async (dispatch) 
         });
         dispatch(postDone());
     } catch (error) {
-        dispatch(getError(error));
+        dispatch(getError(extractErrorMessage(error)));
     }
 }

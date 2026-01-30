@@ -7,6 +7,10 @@ import {
     stuffDone
 } from './studentSlice';
 
+const extractErrorMessage = (error) => {
+    return (error && error.response && error.response.data && (error.response.data.message || error.response.data)) || error.message || 'Lỗi mạng';
+}
+
 export const getAllStudents = (id) => async (dispatch) => {
     dispatch(getRequest());
 
@@ -18,7 +22,7 @@ export const getAllStudents = (id) => async (dispatch) => {
             dispatch(getSuccess(result.data));
         }
     } catch (error) {
-        dispatch(getError(error));
+        dispatch(getError(extractErrorMessage(error)));
     }
 }
 
@@ -35,7 +39,7 @@ export const updateStudentFields = (id, fields, address) => async (dispatch) => 
             dispatch(stuffDone());
         }
     } catch (error) {
-        dispatch(getError(error));
+        dispatch(getError(extractErrorMessage(error)));
     }
 }
 
@@ -50,6 +54,6 @@ export const removeStuff = (id, address) => async (dispatch) => {
             dispatch(stuffDone());
         }
     } catch (error) {
-        dispatch(getError(error));
+        dispatch(getError(extractErrorMessage(error)));
     }
 }

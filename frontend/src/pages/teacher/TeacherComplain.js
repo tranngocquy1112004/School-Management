@@ -2,7 +2,7 @@ import React from 'react'
 
 const TeacherComplain = () => {
   return (
-    <div>TeacherComplain</div>
+    <div>Khiếu nại (giáo viên)</div>
   )
 }
 

@@ -65,10 +65,10 @@ const adminRegister = async (req, res) => {
         const existingSchool = await Admin.findOne({ schoolName: req.body.schoolName });
 
         if (existingAdminByEmail) {
-            res.send({ message: 'Email already exists' });
+            res.send({ message: 'Email đã tồn tại' });
         }
         else if (existingSchool) {
-            res.send({ message: 'School name already exists' });
+            res.send({ message: 'Tên trường đã tồn tại' });
         }
         else {
             let result = await admin.save();
@@ -88,13 +88,13 @@ const adminLogIn = async (req, res) => {
                 admin.password = undefined;
                 res.send(admin);
             } else {
-                res.send({ message: "Invalid password" });
+                res.send({ message: "Mật khẩu không đúng" });
             }
         } else {
-            res.send({ message: "User not found" });
+            res.send({ message: "Không tìm thấy người dùng" });
         }
     } else {
-        res.send({ message: "Email and password are required" });
+        res.send({ message: "Cần email và mật khẩu" });
     }
 };
 
@@ -106,47 +106,52 @@ const getAdminDetail = async (req, res) => {
             res.send(admin);
         }
         else {
-            res.send({ message: "No admin found" });
+            res.send({ message: "Không tìm thấy quản trị" });
         }
     } catch (err) {
         res.status(500).json(err);
     }
 }
 
-// const deleteAdmin = async (req, res) => {
-//     try {
-//         const result = await Admin.findByIdAndDelete(req.params.id)
+const deleteAdmin = async (req, res) => {
+    try {
+        const result = await Admin.findByIdAndDelete(req.params.id)
+        if (!result) {
+            return res.send({ message: "Không tìm thấy quản trị" });
+        }
 
-//         await Sclass.deleteMany({ school: req.params.id });
-//         await Student.deleteMany({ school: req.params.id });
-//         await Teacher.deleteMany({ school: req.params.id });
-//         await Subject.deleteMany({ school: req.params.id });
-//         await Notice.deleteMany({ school: req.params.id });
-//         await Complain.deleteMany({ school: req.params.id });
+        await Promise.all([
+            Sclass.deleteMany({ school: req.params.id }),
+            Student.deleteMany({ school: req.params.id }),
+            Teacher.deleteMany({ school: req.params.id }),
+            Subject.deleteMany({ school: req.params.id }),
+            Notice.deleteMany({ school: req.params.id }),
+            Complain.deleteMany({ school: req.params.id }),
+        ]);
 
-//         res.send(result)
-//     } catch (error) {
-//         res.status(500).json(err);
-//     }
-// }
+        res.send(result)
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
 
-// const updateAdmin = async (req, res) => {
-//     try {
-//         if (req.body.password) {
-//             const salt = await bcrypt.genSalt(10)
-//             res.body.password = await bcrypt.hash(res.body.password, salt)
-//         }
-//         let result = await Admin.findByIdAndUpdate(req.params.id,
-//             { $set: req.body },
-//             { new: true })
+const updateAdmin = async (req, res) => {
+    try {
+        const result = await Admin.findByIdAndUpdate(
+            req.params.id,
+            { $set: req.body },
+            { new: true }
+        );
 
-//         result.password = undefined;
-//         res.send(result)
-//     } catch (error) {
-//         res.status(500).json(err);
-//     }
-// }
+        if (!result) {
+            return res.send({ message: "Không tìm thấy quản trị" });
+        }
 
-// module.exports = { adminRegister, adminLogIn, getAdminDetail, deleteAdmin, updateAdmin };
+        result.password = undefined;
+        res.send(result)
+    } catch (error) {
+        res.status(500).json(error);
+    }
+}
 
-module.exports = { adminRegister, adminLogIn, getAdminDetail };
+module.exports = { adminRegister, adminLogIn, getAdminDetail, deleteAdmin, updateAdmin };

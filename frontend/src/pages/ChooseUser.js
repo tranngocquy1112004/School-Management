@@ -77,7 +77,7 @@ const ChooseUser = ({ visitor }) => {
     }
     else if (status === 'error') {
       setLoader(false)
-      setMessage("Network Error")
+      setMessage("Lỗi mạng")
       setShowPopup(true)
     }
   }, [status, currentRole, navigate, currentUser]);
@@ -93,9 +93,9 @@ const ChooseUser = ({ visitor }) => {
                   <AccountCircle fontSize="large" />
                 </Box>
                 <StyledTypography>
-                  Admin
+                  Quản trị
                 </StyledTypography>
-                Login as an administrator to access the dashboard to manage app data.
+                Đăng nhập với vai trò quản trị để quản lý dữ liệu hệ thống.
               </StyledPaper>
             </div>
           </Grid>
@@ -106,9 +106,9 @@ const ChooseUser = ({ visitor }) => {
                   <School fontSize="large" />
                 </Box>
                 <StyledTypography>
-                  Student
+                  Học sinh
                 </StyledTypography>
-                Login as a student to explore course materials and assignments.
+                Đăng nhập với vai trò học sinh để xem môn học và bài tập.
               </div>
             </StyledPaper>
           </Grid>
@@ -119,9 +119,9 @@ const ChooseUser = ({ visitor }) => {
                   <Group fontSize="large" />
                 </Box>
                 <StyledTypography>
-                  Teacher
+                  Giáo viên
                 </StyledTypography>
-                Login as a teacher to create courses, assignments, and track student progress.
+                Đăng nhập với vai trò giáo viên để quản lý môn học, bài tập và theo dõi tiến độ học sinh.
               </div>
             </StyledPaper>
           </Grid>
@@ -132,7 +132,7 @@ const ChooseUser = ({ visitor }) => {
         open={loader}
       >
         <CircularProgress color="inherit" />
-        Please Wait
+        Vui lòng chờ
       </Backdrop>
       <Popup message={message} setShowPopup={setShowPopup} showPopup={showPopup} />
     </StyledContainer>

@@ -13,6 +13,10 @@ import {
     getError,
 } from './userSlice';
 
+const extractErrorMessage = (error) => {
+    return (error && error.response && error.response.data && (error.response.data.message || error.response.data)) || error.message || 'Lỗi mạng';
+}
+
 export const loginUser = (fields, role) => async (dispatch) => {
     dispatch(authRequest());
 
@@ -26,7 +30,7 @@ export const loginUser = (fields, role) => async (dispatch) => {
             dispatch(authFailed(result.data.message));
         }
     } catch (error) {
-        dispatch(authError(error));
+        dispatch(authError(extractErrorMessage(error)));
     }
 };
 
@@ -47,7 +51,7 @@ export const registerUser = (fields, role) => async (dispatch) => {
             dispatch(authFailed(result.data.message));
         }
     } catch (error) {
-        dispatch(authError(error));
+        dispatch(authError(extractErrorMessage(error)));
     }
 };
 
@@ -64,7 +68,7 @@ export const getUserDetails = (id, address) => async (dispatch) => {
             dispatch(doneSuccess(result.data));
         }
     } catch (error) {
-        dispatch(getError(error));
+        dispatch(getError(extractErrorMessage(error)));
     }
 }
 
@@ -86,7 +90,17 @@ export const getUserDetails = (id, address) => async (dispatch) => {
 
 export const deleteUser = (id, address) => async (dispatch) => {
     dispatch(getRequest());
-    dispatch(getFailed("Sorry the delete function has been disabled for now."));
+
+    try {
+        const result = await axios.delete(`${process.env.REACT_APP_BASE_URL}/${address}/${id}`);
+        if (result.data && result.data.message) {
+            dispatch(getFailed(result.data.message));
+        } else {
+            dispatch(getDeleteSuccess());
+        }
+    } catch (error) {
+        dispatch(getError(extractErrorMessage(error)));
+    }
 }
 
 export const updateUser = (fields, id, address) => async (dispatch) => {
@@ -103,7 +117,7 @@ export const updateUser = (fields, id, address) => async (dispatch) => {
             dispatch(doneSuccess(result.data));
         }
     } catch (error) {
-        dispatch(getError(error));
+        dispatch(getError(extractErrorMessage(error)));
     }
 }
 
@@ -121,6 +135,6 @@ export const addStuff = (fields, address) => async (dispatch) => {
             dispatch(stuffAdded(result.data));
         }
     } catch (error) {
-        dispatch(authError(error));
+        dispatch(authError(extractErrorMessage(error)));
     }
 };

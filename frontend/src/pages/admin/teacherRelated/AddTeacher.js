@@ -53,7 +53,7 @@ const AddTeacher = () => {
       setLoader(false)
     }
     else if (status === 'error') {
-      setMessage("Network Error")
+      setMessage("Lỗi mạng")
       setShowPopup(true)
       setLoader(false)
     }
@@ -63,28 +63,28 @@ const AddTeacher = () => {
     <div>
       <div className="register">
         <form className="registerForm" onSubmit={submitHandler}>
-          <span className="registerTitle">Add Teacher</span>
+          <span className="registerTitle">Thêm giáo viên</span>
           <br />
           <label>
-            Subject : {subjectDetails && subjectDetails.subName}
+            Môn học: {subjectDetails && subjectDetails.subName}
           </label>
           <label>
-            Class : {subjectDetails && subjectDetails.sclassName && subjectDetails.sclassName.sclassName}
+            Lớp: {subjectDetails && subjectDetails.sclassName && subjectDetails.sclassName.sclassName}
           </label>
-          <label>Name</label>
-          <input className="registerInput" type="text" placeholder="Enter teacher's name..."
+          <label>Họ tên</label>
+          <input className="registerInput" type="text" placeholder="Nhập tên giáo viên..."
             value={name}
             onChange={(event) => setName(event.target.value)}
             autoComplete="name" required />
 
           <label>Email</label>
-          <input className="registerInput" type="email" placeholder="Enter teacher's email..."
+          <input className="registerInput" type="email" placeholder="Nhập email giáo viên..."
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             autoComplete="email" required />
 
-          <label>Password</label>
-          <input className="registerInput" type="password" placeholder="Enter teacher's password..."
+          <label>Mật khẩu</label>
+          <input className="registerInput" type="password" placeholder="Nhập mật khẩu..."
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             autoComplete="new-password" required />
@@ -93,7 +93,7 @@ const AddTeacher = () => {
             {loader ? (
               <CircularProgress size={24} color="inherit" />
             ) : (
-              'Register'
+              'Đăng ký'
             )}
           </button>
         </form>

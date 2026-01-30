@@ -52,6 +52,10 @@ const TableViewTemplate = ({ columns, rows }) => {
                 count={rows.length}
                 rowsPerPage={rowsPerPage}
                 page={page}
+                labelRowsPerPage="Số dòng mỗi trang"
+                labelDisplayedRows={({ from, to, count }) =>
+                    `${from}-${to} / ${count !== -1 ? count : `nhiều hơn ${to}`}`
+                }
                 onPageChange={(event, newPage) => setPage(newPage)}
                 onRowsPerPageChange={(event) => {
                     setRowsPerPage(parseInt(event.target.value, 5));

@@ -16,7 +16,7 @@ const sclassCreate = async (req, res) => {
         });
 
         if (existingSclassByName) {
-            res.send({ message: 'Sorry this class name already exists' });
+            res.send({ message: 'Tên lớp đã tồn tại' });
         }
         else {
             const result = await sclass.save();
@@ -33,7 +33,7 @@ const sclassList = async (req, res) => {
         if (sclasses.length > 0) {
             res.send(sclasses)
         } else {
-            res.send({ message: "No sclasses found" });
+            res.send({ message: "Không tìm thấy lớp" });
         }
     } catch (err) {
         res.status(500).json(err);
@@ -48,7 +48,7 @@ const getSclassDetail = async (req, res) => {
             res.send(sclass);
         }
         else {
-            res.send({ message: "No class found" });
+            res.send({ message: "Không tìm thấy lớp" });
         }
     } catch (err) {
         res.status(500).json(err);
@@ -64,7 +64,7 @@ const getSclassStudents = async (req, res) => {
             });
             res.send(modifiedStudents);
         } else {
-            res.send({ message: "No students found" });
+            res.send({ message: "Không tìm thấy học sinh" });
         }
     } catch (err) {
         res.status(500).json(err);
@@ -75,7 +75,7 @@ const deleteSclass = async (req, res) => {
     try {
         const deletedClass = await Sclass.findByIdAndDelete(req.params.id);
         if (!deletedClass) {
-            return res.send({ message: "Class not found" });
+            return res.send({ message: "Không tìm thấy lớp" });
         }
         const deletedStudents = await Student.deleteMany({ sclassName: req.params.id });
         const deletedSubjects = await Subject.deleteMany({ sclassName: req.params.id });
@@ -90,7 +90,7 @@ const deleteSclasses = async (req, res) => {
     try {
         const deletedClasses = await Sclass.deleteMany({ school: req.params.id });
         if (deletedClasses.deletedCount === 0) {
-            return res.send({ message: "No classes found to delete" });
+            return res.send({ message: "Không có lớp để xóa" });
         }
         const deletedStudents = await Student.deleteMany({ school: req.params.id });
         const deletedSubjects = await Subject.deleteMany({ school: req.params.id });

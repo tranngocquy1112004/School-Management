@@ -35,7 +35,7 @@ const AddNotice = () => {
       navigate('/Admin/notices');
       dispatch(underControl())
     } else if (status === 'error') {
-      setMessage("Network Error")
+      setMessage("Lỗi mạng")
       setShowPopup(true)
       setLoader(false)
     }
@@ -45,21 +45,21 @@ const AddNotice = () => {
     <>
       <div className="register">
         <form className="registerForm" onSubmit={submitHandler}>
-          <span className="registerTitle">Add Notice</span>
-          <label>Title</label>
-          <input className="registerInput" type="text" placeholder="Enter notice title..."
+          <span className="registerTitle">Thêm thông báo</span>
+          <label>Tiêu đề</label>
+          <input className="registerInput" type="text" placeholder="Nhập tiêu đề..."
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             required />
 
-          <label>Details</label>
-          <input className="registerInput" type="text" placeholder="Enter notice details..."
+          <label>Nội dung</label>
+          <input className="registerInput" type="text" placeholder="Nhập nội dung..."
             value={details}
             onChange={(event) => setDetails(event.target.value)}
             required />
 
-          <label>Date</label>
-          <input className="registerInput" type="date" placeholder="Enter notice date..."
+          <label>Ngày</label>
+          <input className="registerInput" type="date" placeholder="Chọn ngày..."
             value={date}
             onChange={(event) => setDate(event.target.value)}
             required />
@@ -68,7 +68,7 @@ const AddNotice = () => {
             {loader ? (
               <CircularProgress size={24} color="inherit" />
             ) : (
-              'Add'
+              'Thêm'
             )}
           </button>
         </form>

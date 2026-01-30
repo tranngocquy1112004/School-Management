@@ -19,7 +19,7 @@ const noticeList = async (req, res) => {
         if (notices.length > 0) {
             res.send(notices)
         } else {
-            res.send({ message: "No notices found" });
+            res.send({ message: "Không có thông báo" });
         }
     } catch (err) {
         res.status(500).json(err);
@@ -50,7 +50,7 @@ const deleteNotices = async (req, res) => {
     try {
         const result = await Notice.deleteMany({ school: req.params.id })
         if (result.deletedCount === 0) {
-            res.send({ message: "No notices found to delete" })
+            res.send({ message: "Không có thông báo để xóa" })
         } else {
             res.send(result)
         }

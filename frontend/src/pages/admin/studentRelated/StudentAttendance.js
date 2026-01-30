@@ -76,12 +76,12 @@ const StudentAttendance = ({ situation }) => {
         else if (error) {
             setLoader(false)
             setShowPopup(true)
-            setMessage("error")
+            setMessage("Lỗi")
         }
         else if (statestatus === "added") {
             setLoader(false)
             setShowPopup(true)
-            setMessage("Done Successfully")
+            setMessage("Thành công")
         }
     }, [response, statestatus, error])
 
@@ -90,7 +90,7 @@ const StudentAttendance = ({ situation }) => {
             {loading
                 ?
                 <>
-                    <div>Loading...</div>
+                    <div>Đang tải...</div>
                 </>
                 :
                 <>
@@ -112,11 +112,11 @@ const StudentAttendance = ({ situation }) => {
                         >
                             <Stack spacing={1} sx={{ mb: 3 }}>
                                 <Typography variant="h4">
-                                    Student Name: {userDetails.name}
+                                    Học sinh: {userDetails.name}
                                 </Typography>
                                 {currentUser.teachSubject &&
                                     <Typography variant="h4">
-                                        Subject Name: {currentUser.teachSubject?.subName}
+                                        Môn học: {currentUser.teachSubject?.subName}
                                     </Typography>
                                 }
                             </Stack>
@@ -125,12 +125,12 @@ const StudentAttendance = ({ situation }) => {
                                     {
                                         situation === "Student" &&
                                         <FormControl fullWidth>
-                                            <InputLabel id="demo-simple-select-label">Select Subject</InputLabel>
+                                            <InputLabel id="demo-simple-select-label">Chọn môn</InputLabel>
                                             <Select
                                                 labelId="demo-simple-select-label"
                                                 id="demo-simple-select"
                                                 value={subjectName}
-                                                label="Choose an option"
+                                                label="Chọn"
                                                 onChange={changeHandler} required
                                             >
                                                 {subjectsList ?
@@ -141,29 +141,29 @@ const StudentAttendance = ({ situation }) => {
                                                     ))
                                                     :
                                                     <MenuItem value="Select Subject">
-                                                        Add Subjects For Attendance
+                                                        Thêm môn để điểm danh
                                                     </MenuItem>
                                                 }
                                             </Select>
                                         </FormControl>
                                     }
                                     <FormControl fullWidth>
-                                        <InputLabel id="demo-simple-select-label">Attendance Status</InputLabel>
+                                        <InputLabel id="demo-simple-select-label">Trạng thái điểm danh</InputLabel>
                                         <Select
                                             labelId="demo-simple-select-label"
                                             id="demo-simple-select"
                                             value={status}
-                                            label="Choose an option"
+                                            label="Chọn"
                                             onChange={(event) => setStatus(event.target.value)}
                                             required
                                         >
-                                            <MenuItem value="Present">Present</MenuItem>
-                                            <MenuItem value="Absent">Absent</MenuItem>
+                                            <MenuItem value="Present">Có mặt</MenuItem>
+                                            <MenuItem value="Absent">Vắng</MenuItem>
                                         </Select>
                                     </FormControl>
                                     <FormControl>
                                         <TextField
-                                            label="Select Date"
+                                            label="Chọn ngày"
                                             type="date"
                                             value={date}
                                             onChange={(event) => setDate(event.target.value)} required
@@ -182,7 +182,7 @@ const StudentAttendance = ({ situation }) => {
                                     type="submit"
                                     disabled={loader}
                                 >
-                                    {loader ? <CircularProgress size={24} color="inherit" /> : "Submit"}
+                                    {loader ? <CircularProgress size={24} color="inherit" /> : "Gửi"}
                                 </PurpleButton>
                             </form>
                         </Box>

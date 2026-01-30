@@ -12,6 +12,10 @@ import {
     getSubDetailsRequest
 } from './sclassSlice';
 
+const extractErrorMessage = (error) => {
+    return (error && error.response && error.response.data && (error.response.data.message || error.response.data)) || error.message || 'Lỗi mạng';
+}
+
 export const getAllSclasses = (id, address) => async (dispatch) => {
     dispatch(getRequest());
 
@@ -23,7 +27,7 @@ export const getAllSclasses = (id, address) => async (dispatch) => {
             dispatch(getSuccess(result.data));
         }
     } catch (error) {
-        dispatch(getError(error));
+        dispatch(getError(extractErrorMessage(error)));
     }
 }
 
@@ -38,7 +42,7 @@ export const getClassStudents = (id) => async (dispatch) => {
             dispatch(getStudentsSuccess(result.data));
         }
     } catch (error) {
-        dispatch(getError(error));
+        dispatch(getError(extractErrorMessage(error)));
     }
 }
 
@@ -51,7 +55,7 @@ export const getClassDetails = (id, address) => async (dispatch) => {
             dispatch(detailsSuccess(result.data));
         }
     } catch (error) {
-        dispatch(getError(error));
+        dispatch(getError(extractErrorMessage(error)));
     }
 }
 
@@ -66,7 +70,7 @@ export const getSubjectList = (id, address) => async (dispatch) => {
             dispatch(getSubjectsSuccess(result.data));
         }
     } catch (error) {
-        dispatch(getError(error));
+        dispatch(getError(extractErrorMessage(error)));
     }
 }
 
@@ -81,7 +85,7 @@ export const getTeacherFreeClassSubjects = (id) => async (dispatch) => {
             dispatch(getSubjectsSuccess(result.data));
         }
     } catch (error) {
-        dispatch(getError(error));
+        dispatch(getError(extractErrorMessage(error)));
     }
 }
 
@@ -94,6 +98,6 @@ export const getSubjectDetails = (id, address) => async (dispatch) => {
             dispatch(getSubDetailsSuccess(result.data));
         }
     } catch (error) {
-        dispatch(getError(error));
+        dispatch(getError(extractErrorMessage(error)));
     }
 }

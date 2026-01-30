@@ -89,13 +89,12 @@ const AdminRegisterPage = () => {
                         }}
                     >
                         <Typography variant="h4" sx={{ mb: 2, color: "#2c2143" }}>
-                            Admin Register
+                            Đăng ký Quản trị
                         </Typography>
                         <Typography variant="h7">
-                            Create your own school by registering as an admin.
+                            Tạo trường của bạn bằng cách đăng ký tài khoản quản trị.
                             <br />
-                            You will be able to add students and faculty and
-                            manage the system.
+                            Bạn có thể thêm học sinh, giáo viên và quản lý hệ thống.
                         </Typography>
                         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 2 }}>
                             <TextField
@@ -103,12 +102,12 @@ const AdminRegisterPage = () => {
                                 required
                                 fullWidth
                                 id="adminName"
-                                label="Enter your name"
+                                label="Nhập họ tên"
                                 name="adminName"
                                 autoComplete="name"
                                 autoFocus
                                 error={adminNameError}
-                                helperText={adminNameError && 'Name is required'}
+                                helperText={adminNameError && 'Họ tên là bắt buộc'}
                                 onChange={handleInputChange}
                             />
                             <TextField
@@ -116,11 +115,11 @@ const AdminRegisterPage = () => {
                                 required
                                 fullWidth
                                 id="schoolName"
-                                label="Create your school name"
+                                label="Tạo tên trường"
                                 name="schoolName"
                                 autoComplete="off"
                                 error={schoolNameError}
-                                helperText={schoolNameError && 'School name is required'}
+                                helperText={schoolNameError && 'Tên trường là bắt buộc'}
                                 onChange={handleInputChange}
                             />
                             <TextField
@@ -128,11 +127,11 @@ const AdminRegisterPage = () => {
                                 required
                                 fullWidth
                                 id="email"
-                                label="Enter your email"
+                                label="Nhập email"
                                 name="email"
                                 autoComplete="email"
                                 error={emailError}
-                                helperText={emailError && 'Email is required'}
+                                helperText={emailError && 'Email là bắt buộc'}
                                 onChange={handleInputChange}
                             />
                             <TextField
@@ -140,12 +139,12 @@ const AdminRegisterPage = () => {
                                 required
                                 fullWidth
                                 name="password"
-                                label="Password"
+                                label="Mật khẩu"
                                 type={toggle ? 'text' : 'password'}
                                 id="password"
                                 autoComplete="current-password"
                                 error={passwordError}
-                                helperText={passwordError && 'Password is required'}
+                                helperText={passwordError && 'Mật khẩu là bắt buộc'}
                                 onChange={handleInputChange}
                                 InputProps={{
                                     endAdornment: (
@@ -164,7 +163,7 @@ const AdminRegisterPage = () => {
                             <Grid container sx={{ display: "flex", justifyContent: "space-between" }}>
                                 <FormControlLabel
                                     control={<Checkbox value="remember" color="primary" />}
-                                    label="Remember me"
+                                    label="Ghi nhớ"
                                 />
                             </Grid>
                             <LightPurpleButton
@@ -173,15 +172,15 @@ const AdminRegisterPage = () => {
                                 variant="contained"
                                 sx={{ mt: 3, mb: 2 }}
                             >
-                                {loader ? <CircularProgress size={24} color="inherit"/> : "Register"}
+                                {loader ? <CircularProgress size={24} color="inherit"/> : "Đăng ký"}
                             </LightPurpleButton>
                             <Grid container>
                                 <Grid>
-                                    Already have an account?
+                                    Đã có tài khoản?
                                 </Grid>
                                 <Grid item sx={{ ml: 2 }}>
                                     <StyledLink to="/Adminlogin">
-                                        Log in
+                                        Đăng nhập
                                     </StyledLink>
                                 </Grid>
                             </Grid>

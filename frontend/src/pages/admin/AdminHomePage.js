@@ -38,36 +38,36 @@ const AdminHomePage = () => {
                 <Grid container spacing={3}>
                     <Grid item xs={12} md={3} lg={3}>
                         <StyledPaper>
-                            <img src={Students} alt="Students" />
+                            <img src={Students} alt="Học sinh" />
                             <Title>
-                                Total Students
+                                Tổng học sinh
                             </Title>
                             <Data start={0} end={numberOfStudents} duration={2.5} />
                         </StyledPaper>
                     </Grid>
                     <Grid item xs={12} md={3} lg={3}>
                         <StyledPaper>
-                            <img src={Classes} alt="Classes" />
+                            <img src={Classes} alt="Lớp học" />
                             <Title>
-                                Total Classes
+                                Tổng lớp
                             </Title>
                             <Data start={0} end={numberOfClasses} duration={5} />
                         </StyledPaper>
                     </Grid>
                     <Grid item xs={12} md={3} lg={3}>
                         <StyledPaper>
-                            <img src={Teachers} alt="Teachers" />
+                            <img src={Teachers} alt="Giáo viên" />
                             <Title>
-                                Total Teachers
+                                Tổng giáo viên
                             </Title>
                             <Data start={0} end={numberOfTeachers} duration={2.5} />
                         </StyledPaper>
                     </Grid>
                     <Grid item xs={12} md={3} lg={3}>
                         <StyledPaper>
-                            <img src={Fees} alt="Fees" />
+                            <img src={Fees} alt="Học phí" />
                             <Title>
-                                Fees Collection
+                                Thu học phí
                             </Title>
                             <Data start={0} end={23000} duration={2.5} prefix="$" />                        </StyledPaper>
                     </Grid>

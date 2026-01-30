@@ -18,6 +18,7 @@ const LoginPage = ({ role }) => {
     const navigate = useNavigate()
 
     const { status, currentUser, response, error, currentRole } = useSelector(state => state.user);;
+    const roleLabel = role === "Admin" ? "Quản trị" : role === "Student" ? "Học sinh" : "Giáo viên";
 
     const [toggle, setToggle] = useState(false)
     const [guestLoader, setGuestLoader] = useState(false)
@@ -114,7 +115,7 @@ const LoginPage = ({ role }) => {
             setLoader(false)
         }
         else if (status === 'error') {
-            setMessage("Network Error")
+            setMessage("Lỗi mạng")
             setShowPopup(true)
             setLoader(false)
             setGuestLoader(false)
@@ -136,10 +137,10 @@ const LoginPage = ({ role }) => {
                         }}
                     >
                         <Typography variant="h4" sx={{ mb: 2, color: "#2c2143" }}>
-                            {role} Login
+                            {roleLabel} Đăng nhập
                         </Typography>
                         <Typography variant="h7">
-                            Welcome back! Please enter your details
+                            Chào mừng quay lại! Vui lòng nhập thông tin
                         </Typography>
                         <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 2 }}>
                             {role === "Student" ? (
@@ -149,13 +150,13 @@ const LoginPage = ({ role }) => {
                                         required
                                         fullWidth
                                         id="rollNumber"
-                                        label="Enter your Roll Number"
+                                        label="Nhập số báo danh"
                                         name="rollNumber"
                                         autoComplete="off"
                                         type="number"
                                         autoFocus
                                         error={rollNumberError}
-                                        helperText={rollNumberError && 'Roll Number is required'}
+                                        helperText={rollNumberError && 'Số báo danh là bắt buộc'}
                                         onChange={handleInputChange}
                                     />
                                     <TextField
@@ -163,12 +164,12 @@ const LoginPage = ({ role }) => {
                                         required
                                         fullWidth
                                         id="studentName"
-                                        label="Enter your name"
+                                        label="Nhập họ tên"
                                         name="studentName"
                                         autoComplete="name"
                                         autoFocus
                                         error={studentNameError}
-                                        helperText={studentNameError && 'Name is required'}
+                                        helperText={studentNameError && 'Họ tên là bắt buộc'}
                                         onChange={handleInputChange}
                                     />
                                 </>
@@ -178,12 +179,12 @@ const LoginPage = ({ role }) => {
                                     required
                                     fullWidth
                                     id="email"
-                                    label="Enter your email"
+                                    label="Nhập email"
                                     name="email"
                                     autoComplete="email"
                                     autoFocus
                                     error={emailError}
-                                    helperText={emailError && 'Email is required'}
+                                    helperText={emailError && 'Email là bắt buộc'}
                                     onChange={handleInputChange}
                                 />
                             )}
@@ -192,12 +193,12 @@ const LoginPage = ({ role }) => {
                                 required
                                 fullWidth
                                 name="password"
-                                label="Password"
+                                label="Mật khẩu"
                                 type={toggle ? 'text' : 'password'}
                                 id="password"
                                 autoComplete="current-password"
                                 error={passwordError}
-                                helperText={passwordError && 'Password is required'}
+                                helperText={passwordError && 'Mật khẩu là bắt buộc'}
                                 onChange={handleInputChange}
                                 InputProps={{
                                     endAdornment: (
@@ -216,10 +217,10 @@ const LoginPage = ({ role }) => {
                             <Grid container sx={{ display: "flex", justifyContent: "space-between" }}>
                                 <FormControlLabel
                                     control={<Checkbox value="remember" color="primary" />}
-                                    label="Remember me"
+                                    label="Ghi nhớ"
                                 />
                                 <StyledLink href="#">
-                                    Forgot password?
+                                    Quên mật khẩu?
                                 </StyledLink>
                             </Grid>
                             <LightPurpleButton
@@ -230,7 +231,7 @@ const LoginPage = ({ role }) => {
                             >
                                 {loader ?
                                     <CircularProgress size={24} color="inherit" />
-                                    : "Login"}
+                                    : "Đăng nhập"}
                             </LightPurpleButton>
                             <Button
                                 fullWidth
@@ -238,16 +239,16 @@ const LoginPage = ({ role }) => {
                                 variant="outlined"
                                 sx={{ mt: 2, mb: 3, color: "#7f56da", borderColor: "#7f56da" }}
                             >
-                                Login as Guest
+                                Đăng nhập khách
                             </Button>
                             {role === "Admin" &&
                                 <Grid container>
                                     <Grid>
-                                        Don't have an account?
+                                        Chưa có tài khoản?
                                     </Grid>
                                     <Grid item sx={{ ml: 2 }}>
                                         <StyledLink to="/Adminregister">
-                                            Sign up
+                                            Đăng ký
                                         </StyledLink>
                                     </Grid>
                                 </Grid>
@@ -275,7 +276,7 @@ const LoginPage = ({ role }) => {
                 open={guestLoader}
             >
                 <CircularProgress color="primary" />
-                Please Wait
+                Vui lòng chờ
             </Backdrop>
             <Popup message={message} setShowPopup={setShowPopup} showPopup={showPopup} />
         </ThemeProvider>

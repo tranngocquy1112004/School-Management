@@ -13,7 +13,7 @@ const teacherRegister = async (req, res) => {
         const existingTeacherByEmail = await Teacher.findOne({ email });
 
         if (existingTeacherByEmail) {
-            res.send({ message: 'Email already exists' });
+            res.send({ message: 'Email đã tồn tại' });
         }
         else {
             let result = await teacher.save();
@@ -38,10 +38,10 @@ const teacherLogIn = async (req, res) => {
                 teacher.password = undefined;
                 res.send(teacher);
             } else {
-                res.send({ message: "Invalid password" });
+                res.send({ message: "Mật khẩu không đúng" });
             }
         } else {
-            res.send({ message: "Teacher not found" });
+            res.send({ message: "Không tìm thấy giáo viên" });
         }
     } catch (err) {
         res.status(500).json(err);
@@ -59,7 +59,7 @@ const getTeachers = async (req, res) => {
             });
             res.send(modifiedTeachers);
         } else {
-            res.send({ message: "No teachers found" });
+            res.send({ message: "Không tìm thấy giáo viên" });
         }
     } catch (err) {
         res.status(500).json(err);
@@ -77,7 +77,7 @@ const getTeacherDetail = async (req, res) => {
             res.send(teacher);
         }
         else {
-            res.send({ message: "No teacher found" });
+            res.send({ message: "Không tìm thấy giáo viên" });
         }
     } catch (err) {
         res.status(500).json(err);
@@ -105,8 +105,12 @@ const deleteTeacher = async (req, res) => {
     try {
         const deletedTeacher = await Teacher.findByIdAndDelete(req.params.id);
 
-        await Subject.updateOne(
-            { teacher: deletedTeacher._id, teacher: { $exists: true } },
+        if (!deletedTeacher) {
+            return res.send({ message: "Không tìm thấy giáo viên" });
+        }
+
+        await Subject.updateMany(
+            { teacher: deletedTeacher._id },
             { $unset: { teacher: 1 } }
         );
 
@@ -118,21 +122,24 @@ const deleteTeacher = async (req, res) => {
 
 const deleteTeachers = async (req, res) => {
     try {
+        const teachers = await Teacher.find({ school: req.params.id }, "_id");
+        const teacherIds = teachers.map((teacher) => teacher._id);
+
         const deletionResult = await Teacher.deleteMany({ school: req.params.id });
 
         const deletedCount = deletionResult.deletedCount || 0;
 
         if (deletedCount === 0) {
-            res.send({ message: "No teachers found to delete" });
+            res.send({ message: "Không có giáo viên để xóa" });
             return;
         }
 
-        const deletedTeachers = await Teacher.find({ school: req.params.id });
-
-        await Subject.updateMany(
-            { teacher: { $in: deletedTeachers.map(teacher => teacher._id) }, teacher: { $exists: true } },
-            { $unset: { teacher: "" }, $unset: { teacher: null } }
-        );
+        if (teacherIds.length > 0) {
+            await Subject.updateMany(
+                { teacher: { $in: teacherIds } },
+                { $unset: { teacher: 1 } }
+            );
+        }
 
         res.send(deletionResult);
     } catch (error) {
@@ -142,21 +149,24 @@ const deleteTeachers = async (req, res) => {
 
 const deleteTeachersByClass = async (req, res) => {
     try {
-        const deletionResult = await Teacher.deleteMany({ sclassName: req.params.id });
+        const teachers = await Teacher.find({ teachSclass: req.params.id }, "_id");
+        const teacherIds = teachers.map((teacher) => teacher._id);
+
+        const deletionResult = await Teacher.deleteMany({ teachSclass: req.params.id });
 
         const deletedCount = deletionResult.deletedCount || 0;
 
         if (deletedCount === 0) {
-            res.send({ message: "No teachers found to delete" });
+            res.send({ message: "Không có giáo viên để xóa" });
             return;
         }
 
-        const deletedTeachers = await Teacher.find({ sclassName: req.params.id });
-
-        await Subject.updateMany(
-            { teacher: { $in: deletedTeachers.map(teacher => teacher._id) }, teacher: { $exists: true } },
-            { $unset: { teacher: "" }, $unset: { teacher: null } }
-        );
+        if (teacherIds.length > 0) {
+            await Subject.updateMany(
+                { teacher: { $in: teacherIds } },
+                { $unset: { teacher: 1 } }
+            );
+        }
 
         res.send(deletionResult);
     } catch (error) {
@@ -171,7 +181,7 @@ const teacherAttendance = async (req, res) => {
         const teacher = await Teacher.findById(req.params.id);
 
         if (!teacher) {
-            return res.send({ message: 'Teacher not found' });
+            return res.send({ message: 'Không tìm thấy giáo viên' });
         }
 
         const existingAttendance = teacher.attendance.find(

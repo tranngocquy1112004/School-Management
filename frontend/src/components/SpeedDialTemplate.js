@@ -5,7 +5,7 @@ import TuneIcon from '@mui/icons-material/Tune';
 const SpeedDialTemplate = ({ actions }) => {
     return (
         <CustomSpeedDial
-            ariaLabel="SpeedDial playground example"
+            ariaLabel="Menu thao tác nhanh"
             icon={<TuneIcon />}
             direction="left"
         >

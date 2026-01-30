@@ -38,8 +38,8 @@ const StudentHomePage = () => {
     const overallAbsentPercentage = 100 - overallAttendancePercentage;
 
     const chartData = [
-        { name: 'Present', value: overallAttendancePercentage },
-        { name: 'Absent', value: overallAbsentPercentage }
+        { name: 'Có mặt', value: overallAttendancePercentage },
+        { name: 'Vắng', value: overallAbsentPercentage }
     ];
     return (
         <>
@@ -47,18 +47,18 @@ const StudentHomePage = () => {
                 <Grid container spacing={3}>
                     <Grid item xs={12} md={3} lg={3}>
                         <StyledPaper>
-                            <img src={Subject} alt="Subjects" />
+                            <img src={Subject} alt="Môn học" />
                             <Title>
-                                Total Subjects
+                                Tổng môn học
                             </Title>
                             <Data start={0} end={numberOfSubjects} duration={2.5} />
                         </StyledPaper>
                     </Grid>
                     <Grid item xs={12} md={3} lg={3}>
                         <StyledPaper>
-                            <img src={Assignment} alt="Assignments" />
+                            <img src={Assignment} alt="Bài tập" />
                             <Title>
-                                Total Assignments
+                                Tổng bài tập
                             </Title>
                             <Data start={0} end={15} duration={4} />
                         </StyledPaper>
@@ -67,12 +67,12 @@ const StudentHomePage = () => {
                         <ChartContainer>
                             {
                                 response ?
-                                    <Typography variant="h6">No Attendance Found</Typography>
+                                    <Typography variant="h6">Chưa có dữ liệu chuyên cần</Typography>
                                     :
                                     <>
                                         {loading
                                             ? (
-                                                <Typography variant="h6">Loading...</Typography>
+                                                <Typography variant="h6">Đang tải...</Typography>
                                             )
                                             :
                                             <>
@@ -83,7 +83,7 @@ const StudentHomePage = () => {
                                                         </>
                                                     )
                                                         :
-                                                        <Typography variant="h6">No Attendance Found</Typography>
+                                                        <Typography variant="h6">Chưa có dữ liệu chuyên cần</Typography>
                                                 }
                                             </>
                                         }
