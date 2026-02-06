@@ -17,6 +17,10 @@ import Popup from '../../../components/Popup';
 const StudentAttendance = ({ situation }) => {
     const dispatch = useDispatch();
     const { currentUser, userDetails, loading } = useSelector((state) => state.user);
+    const teachSubjects = Array.isArray(currentUser?.teachSubject)
+        ? currentUser.teachSubject
+        : (currentUser?.teachSubject ? [currentUser.teachSubject] : []);
+    const primarySubject = teachSubjects[0];
     const { subjectsList } = useSelector((state) => state.sclass);
     const { response, error, statestatus } = useSelector((state) => state.student);
     const params = useParams()
@@ -114,9 +118,9 @@ const StudentAttendance = ({ situation }) => {
                                 <Typography variant="h4">
                                     Học sinh: {userDetails.name}
                                 </Typography>
-                                {currentUser.teachSubject &&
+                                {primarySubject &&
                                     <Typography variant="h4">
-                                        Môn học: {currentUser.teachSubject?.subName}
+                                        Môn học: {primarySubject?.subName}
                                     </Typography>
                                 }
                             </Stack>
@@ -195,3 +199,4 @@ const StudentAttendance = ({ situation }) => {
 }
 
 export default StudentAttendance
+

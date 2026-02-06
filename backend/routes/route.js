@@ -1,8 +1,13 @@
 const router = require('express').Router();
 
 const { adminRegister, adminLogIn, deleteAdmin, getAdminDetail, updateAdmin } = require('../controllers/admin-controller.js');
+const Admin = require('../models/adminSchema');
+const Teacher = require('../models/teacherSchema');
+const Student = require('../models/studentSchema');
+const auth = require('../middleware/auth');
+const { authorize, requirePermission } = require('../middleware/authorize');
 
-const { sclassCreate, sclassList, deleteSclass, deleteSclasses, getSclassDetail, getSclassStudents } = require('../controllers/class-controller.js');
+const { sclassCreate, sclassList, updateSclass, deleteSclass, deleteSclasses, getSclassDetail, getSclassStudents } = require('../controllers/class-controller.js');
 const { complainCreate, complainList } = require('../controllers/complain-controller.js');
 const { noticeCreate, noticeList, deleteNotices, deleteNotice, updateNotice } = require('../controllers/notice-controller.js');
 const {
@@ -20,12 +25,47 @@ const {
     clearAllStudentsAttendance,
     removeStudentAttendanceBySubject,
     removeStudentAttendance } = require('../controllers/student_controller.js');
-const { subjectCreate, classSubjects, deleteSubjectsByClass, getSubjectDetail, deleteSubject, freeSubjectList, allSubjects, deleteSubjects } = require('../controllers/subject-controller.js');
-const { teacherRegister, teacherLogIn, getTeachers, getTeacherDetail, deleteTeachers, deleteTeachersByClass, deleteTeacher, updateTeacherSubject, teacherAttendance } = require('../controllers/teacher-controller.js');
+const { subjectCreate, classSubjects, deleteSubjectsByClass, getSubjectDetail, updateSubject, deleteSubject, freeSubjectList, allSubjects, deleteSubjects } = require('../controllers/subject-controller.js');
+const { teacherRegister, teacherLogIn, getTeachers, getTeacherDetail, deleteTeachers, deleteTeachersByClass, deleteTeacher, updateTeacherSubject, teacherAttendance, updateTeacher } = require('../controllers/teacher-controller.js');
 
 // Admin
 router.post('/AdminReg', adminRegister);
 router.post('/AdminLogin', adminLogIn);
+router.post('/Logout', (req, res) => {
+    res.clearCookie('token', {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production'
+    });
+    res.send({ message: 'Logged out' });
+});
+router.get('/Me', auth, async (req, res) => {
+    try {
+        const { id, role } = req.user || {};
+        if (!id || !role) return res.status(401).send({ message: 'Unauthenticated' });
+
+        let user = null;
+        if (role === 'Admin') {
+            user = await Admin.findById(id);
+        } else if (role === 'Teacher') {
+            user = await Teacher.findById(id)
+                .populate("teachSubject", "subName sessions")
+                .populate("school", "schoolName")
+                .populate("teachSclass", "sclassName");
+        } else if (role === 'Student') {
+            user = await Student.findById(id)
+                .populate("school", "schoolName")
+                .populate("sclassName", "sclassName")
+                .populate("sclassNames", "sclassName");
+        }
+
+        if (!user) return res.status(404).send({ message: 'User not found' });
+        user.password = undefined;
+        res.send({ user });
+    } catch (error) {
+        res.status(500).json(error);
+    }
+});
 
 router.get("/Admin/:id", getAdminDetail)
 router.delete("/Admin/:id", deleteAdmin)
@@ -43,7 +83,7 @@ router.delete("/Students/:id", deleteStudents)
 router.delete("/StudentsClass/:id", deleteStudentsByClass)
 router.delete("/Student/:id", deleteStudent)
 
-router.put("/Student/:id", updateStudent)
+router.put("/Student/:id", auth, requirePermission('Student', 'update'), updateStudent)
 
 router.put('/UpdateExamResult/:id', updateExamResult)
 
@@ -67,9 +107,11 @@ router.delete("/Teachers/:id", deleteTeachers)
 router.delete("/TeachersClass/:id", deleteTeachersByClass)
 router.delete("/Teacher/:id", deleteTeacher)
 
-router.put("/TeacherSubject", updateTeacherSubject)
+router.put("/TeacherSubject", auth, requirePermission('Teacher', 'updateSubject'), updateTeacherSubject)
 
-router.post('/TeacherAttendance/:id', teacherAttendance)
+router.put('/Teacher/:id', auth, requirePermission('Teacher', 'update'), updateTeacher)
+
+router.post('/TeacherAttendance/:id', auth, teacherAttendance)
 
 // Notice
 
@@ -97,6 +139,7 @@ router.get("/Sclass/:id", getSclassDetail)
 
 router.get("/Sclass/Students/:id", getSclassStudents)
 
+router.put('/Sclass/:id', auth, requirePermission('Sclass', 'update'), updateSclass)
 router.delete("/Sclasses/:id", deleteSclasses)
 router.delete("/Sclass/:id", deleteSclass)
 
@@ -108,6 +151,7 @@ router.get('/AllSubjects/:id', allSubjects);
 router.get('/ClassSubjects/:id', classSubjects);
 router.get('/FreeSubjectList/:id', freeSubjectList);
 router.get("/Subject/:id", getSubjectDetail)
+router.put("/Subject/:id", auth, requirePermission('Subject', 'update'), updateSubject)
 
 router.delete("/Subject/:id", deleteSubject)
 router.delete("/Subjects/:id", deleteSubjects)

@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react'
 import { getClassStudents, getSubjectDetails } from '../../../redux/sclassRelated/sclassHandle';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Box, Tab, Container, Typography, BottomNavigation, BottomNavigationAction, Paper } from '@mui/material';
+import { Box, Tab, Container, Typography, BottomNavigation, BottomNavigationAction, Paper, Button, Collapse } from '@mui/material';
 import { BlueButton, GreenButton, PurpleButton } from '../../../components/buttonStyles';
 import TableTemplate from '../../../components/TableTemplate';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
+import { updateUser } from '../../../redux/userRelated/userHandle';
 
 import InsertChartIcon from '@mui/icons-material/InsertChart';
 import InsertChartOutlinedIcon from '@mui/icons-material/InsertChartOutlined';
@@ -32,6 +33,10 @@ const ViewSubject = () => {
   }
 
   const [value, setValue] = useState('1');
+  const [showEdit, setShowEdit] = useState(false);
+  const [subName, setSubName] = useState('');
+  const [subCode, setSubCode] = useState('');
+  const [sessions, setSessions] = useState('');
 
   const handleChange = (event, newValue) => {
     setValue(newValue);
@@ -40,6 +45,20 @@ const ViewSubject = () => {
   const [selectedSection, setSelectedSection] = useState('attendance');
   const handleSectionChange = (event, newSection) => {
     setSelectedSection(newSection);
+  };
+
+  useEffect(() => {
+    if (subjectDetails) {
+      setSubName(subjectDetails.subName || '');
+      setSubCode(subjectDetails.subCode || '');
+      setSessions(subjectDetails.sessions || '');
+    }
+  }, [subjectDetails]);
+
+  const submitHandler = (event) => {
+    event.preventDefault();
+    dispatch(updateUser({ subName, subCode, sessions }, subjectID, "Subject"))
+      .then(() => dispatch(getSubjectDetails(subjectID, "Subject")));
   };
 
   const studentColumns = [
@@ -70,7 +89,7 @@ const ViewSubject = () => {
             navigate(`/Admin/subject/student/attendance/${row.id}/${subjectID}`)
           }
         >
-          Điểm danh
+          Äiá»ƒm danh
         </PurpleButton>
       </>
     );
@@ -110,7 +129,7 @@ const ViewSubject = () => {
         ) : (
           <>
             <Typography variant="h5" gutterBottom>
-              Danh sách học sinh:
+              Danh sách Học Sinh:
             </Typography>
 
             {selectedSection === 'attendance' &&
@@ -128,7 +147,7 @@ const ViewSubject = () => {
                   icon={selectedSection === 'attendance' ? <TableChartIcon /> : <TableChartOutlinedIcon />}
                 />
                 <BottomNavigationAction
-                  label="Điểm"
+                  label="Điểm số"
                   value="marks"
                   icon={selectedSection === 'marks' ? <InsertChartIcon /> : <InsertChartOutlinedIcon />}
                 />
@@ -174,6 +193,47 @@ const ViewSubject = () => {
             Thêm giáo viên bộ môn
           </GreenButton>
         }
+        <Button variant="contained" onClick={() => setShowEdit(!showEdit)} sx={{ marginTop: 2 }}>
+          {showEdit ? 'Hide edit' : 'Edit subject'}
+        </Button>
+        <Collapse in={showEdit} timeout="auto" unmountOnExit>
+          <div className="register">
+            <form className="registerForm" onSubmit={submitHandler}>
+              <span className="registerTitle">Cập nhật môn học</span>
+              <label>Tên Môn Học</label>
+              <input
+                className="registerInput"
+                type="text"
+                placeholder="Enter subject name..."
+                value={subName}
+                onChange={(event) => setSubName(event.target.value)}
+                required
+              />
+
+              <label>Mã Môn Học</label>
+              <input
+                className="registerInput"
+                type="text"
+                placeholder="Enter subject code..."
+                value={subCode}
+                onChange={(event) => setSubCode(event.target.value)}
+                required
+              />
+
+              <label>Số buổi</label>
+              <input
+                className="registerInput"
+                type="text"
+                placeholder="Enter sessions..."
+                value={sessions}
+                onChange={(event) => setSessions(event.target.value)}
+                required
+              />
+
+              <button className="registerButton" type="submit">Cập nhật</button>
+            </form>
+          </div>
+        </Collapse>
       </>
     );
   }

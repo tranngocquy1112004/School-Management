@@ -19,8 +19,8 @@ const AddStudent = ({ situation }) => {
     const [name, setName] = useState('');
     const [rollNum, setRollNum] = useState('');
     const [password, setPassword] = useState('')
-    const [className, setClassName] = useState('')
     const [sclassName, setSclassName] = useState('')
+    const [selectedClasses, setSelectedClasses] = useState([])
 
     const adminID = currentUser._id
     const role = "Student"
@@ -29,6 +29,7 @@ const AddStudent = ({ situation }) => {
     useEffect(() => {
         if (situation === "Class") {
             setSclassName(params.id);
+            setSelectedClasses([params.id]);
         }
     }, [params.id, situation]);
 
@@ -41,23 +42,16 @@ const AddStudent = ({ situation }) => {
     }, [adminID, dispatch]);
 
     const changeHandler = (event) => {
-        if (event.target.value === 'Select Class') {
-            setClassName('Select Class');
-            setSclassName('');
-        } else {
-            const selectedClass = sclassesList.find(
-                (classItem) => classItem.sclassName === event.target.value
-            );
-            setClassName(selectedClass.sclassName);
-            setSclassName(selectedClass._id);
-        }
+        const values = Array.from(event.target.selectedOptions).map((option) => option.value);
+        setSelectedClasses(values);
+        setSclassName(values[0] || '');
     }
 
-    const fields = { name, rollNum, password, sclassName, adminID, role, attendance }
+    const fields = { name, rollNum, password, sclassName, sclassNames: selectedClasses, adminID, role, attendance }
 
     const submitHandler = (event) => {
         event.preventDefault()
-        if (sclassName === "") {
+        if (selectedClasses.length === 0) {
             setMessage("Vui lòng chọn lớp")
             setShowPopup(true)
         }
@@ -96,16 +90,16 @@ const AddStudent = ({ situation }) => {
                         autoComplete="name" required />
 
                     {
-                        situation === "Student" &&
+                        (situation === "Student" || situation === "Class") &&
                         <>
-                            <label>Lớp</label>
+                            <label>Classes</label>
                             <select
                                 className="registerInput"
-                                value={className}
+                                multiple
+                                value={selectedClasses}
                                 onChange={changeHandler} required>
-                                <option value='Select Class'>Chọn lớp</option>
-                                {sclassesList.map((classItem, index) => (
-                                    <option key={index} value={classItem.sclassName}>
+                                {sclassesList.map((classItem) => (
+                                    <option key={classItem._id} value={classItem._id}>
                                         {classItem.sclassName}
                                     </option>
                                 ))}

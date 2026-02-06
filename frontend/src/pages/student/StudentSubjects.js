@@ -27,21 +27,41 @@ const StudentSubjects = () => {
     const [subjectMarks, setSubjectMarks] = useState([]);
     const [selectedSection, setSelectedSection] = useState('table');
 
+    const studentClasses = Array.isArray(userDetails?.sclassNames)
+        ? userDetails.sclassNames
+        : (userDetails?.sclassName ? [userDetails.sclassName] : (currentUser.sclassName ? [currentUser.sclassName] : []));
+    const [selectedClassId, setSelectedClassId] = useState(currentUser.sclassName?._id || studentClasses[0]?._id || "");
+    const selectedClass = studentClasses.find((c) => c._id === selectedClassId) || studentClasses[0];
     useEffect(() => {
         if (userDetails) {
             setSubjectMarks(userDetails.examResult || []);
+            const classes = Array.isArray(userDetails.sclassNames)
+                ? userDetails.sclassNames
+                : (userDetails.sclassName ? [userDetails.sclassName] : []);
+            if (classes.length > 0) {
+                setSelectedClassId((prev) => prev || classes[0]._id);
+            }
         }
     }, [userDetails])
 
     useEffect(() => {
-        if (subjectMarks.length === 0) {
-            dispatch(getSubjectList(currentUser.sclassName._id, "ClassSubjects"));
+        if (selectedClassId) {
+            dispatch(getSubjectList(selectedClassId, "ClassSubjects"));
         }
-    }, [subjectMarks, dispatch, currentUser.sclassName._id]);
+    }, [dispatch, selectedClassId]);
 
     const handleSectionChange = (event, newSection) => {
         setSelectedSection(newSection);
     };
+
+    const allowedSubjectIds = Array.isArray(subjectsList)
+        ? new Set(subjectsList.map((s) => s._id))
+        : new Set();
+    const filteredMarks = Array.isArray(subjectMarks)
+        ? (allowedSubjectIds.size > 0
+            ? subjectMarks.filter((m) => m.subName && allowedSubjectIds.has(m.subName._id))
+            : subjectMarks)
+        : [];
 
     const renderTableSection = () => {
         return (
@@ -57,7 +77,7 @@ const StudentSubjects = () => {
                         </StyledTableRow>
                     </TableHead>
                     <TableBody>
-                        {subjectMarks.map((result, index) => {
+                        {filteredMarks.map((result, index) => {
                             if (!result.subName || !result.marksObtained) {
                                 return null;
                             }
@@ -75,17 +95,28 @@ const StudentSubjects = () => {
     };
 
     const renderChartSection = () => {
-        return <CustomBarChart chartData={subjectMarks} dataKey="marksObtained" />;
+        return <CustomBarChart chartData={filteredMarks} dataKey="marksObtained" />;
     };
 
     const renderClassDetailsSection = () => {
         return (
             <Container>
+                {studentClasses.length > 1 && (
+                    <select
+                        className="registerInput"
+                        value={selectedClassId}
+                        onChange={(event) => setSelectedClassId(event.target.value)}
+                    >
+                        {studentClasses.map((c) => (
+                            <option key={c._id} value={c._id}>{c.sclassName}</option>
+                        ))}
+                    </select>
+                )}
                 <Typography variant="h4" align="center" gutterBottom>
                     Thông tin lớp
                 </Typography>
                 <Typography variant="h5" gutterBottom>
-                    Bạn đang thuộc lớp {sclassDetails && sclassDetails.sclassName}
+                    Class: {selectedClass ? selectedClass.sclassName : ''}
                 </Typography>
                 <Typography variant="h6" gutterBottom>
                     Danh sách môn học:

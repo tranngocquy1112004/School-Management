@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { getSubjectDetails } from '../../../redux/sclassRelated/sclassHandle';
+import { getSubjectDetails, getSubjectList } from '../../../redux/sclassRelated/sclassHandle';
 import Popup from '../../../components/Popup';
 import { registerUser } from '../../../redux/userRelated/userHandle';
 import { underControl } from '../../../redux/userRelated/userSlice';
@@ -15,7 +15,7 @@ const AddTeacher = () => {
   const subjectID = params.id
 
   const { status, response, error } = useSelector(state => state.user);
-  const { subjectDetails } = useSelector((state) => state.sclass);
+  const { subjectDetails, subjectsList } = useSelector((state) => state.sclass);
 
   useEffect(() => {
     dispatch(getSubjectDetails(subjectID, "Subject"));
@@ -31,10 +31,26 @@ const AddTeacher = () => {
 
   const role = "Teacher"
   const school = subjectDetails && subjectDetails.school
-  const teachSubject = subjectDetails && subjectDetails._id
   const teachSclass = subjectDetails && subjectDetails.sclassName && subjectDetails.sclassName._id
 
-  const fields = { name, email, password, role, school, teachSubject, teachSclass }
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
+
+  useEffect(() => {
+    if (teachSclass) {
+      dispatch(getSubjectList(teachSclass, "ClassSubjects"));
+    }
+  }, [dispatch, teachSclass]);
+
+  useEffect(() => {
+    if (subjectDetails && subjectDetails._id) {
+      setSelectedSubjects((prev) => {
+        if (prev.includes(subjectDetails._id)) return prev;
+        return [...prev, subjectDetails._id];
+      });
+    }
+  }, [subjectDetails]);
+
+  const fields = { name, email, password, role, school, teachSubject: selectedSubjects, teachSclass }
 
   const submitHandler = (event) => {
     event.preventDefault()
@@ -66,8 +82,30 @@ const AddTeacher = () => {
           <span className="registerTitle">Thêm giáo viên</span>
           <br />
           <label>
-            Môn học: {subjectDetails && subjectDetails.subName}
+            Mon hoc (chon nhieu):
           </label>
+          <select
+            className="registerInput"
+            multiple
+            value={selectedSubjects}
+            onChange={(event) => {
+              const values = Array.from(event.target.selectedOptions).map((option) => option.value);
+              setSelectedSubjects(values);
+            }}
+            required
+          >
+            {Array.isArray(subjectsList) && subjectsList.length > 0 ? (
+              subjectsList.map((subject) => (
+                <option key={subject._id} value={subject._id}>
+                  {subject.subName}
+                </option>
+              ))
+            ) : (
+              <option value="" disabled>
+                Chua co mon
+              </option>
+            )}
+          </select>
           <label>
             Lớp: {subjectDetails && subjectDetails.sclassName && subjectDetails.sclassName.sclassName}
           </label>

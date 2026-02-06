@@ -6,6 +6,7 @@ import {
     getError,
     stuffDone
 } from './studentSlice';
+import { getAuthHeader } from '../../utils/authHeader';
 
 const extractErrorMessage = (error) => {
     return (error && error.response && error.response.data && (error.response.data.message || error.response.data)) || error.message || 'Lỗi mạng';
@@ -31,7 +32,8 @@ export const updateStudentFields = (id, fields, address) => async (dispatch) => 
 
     try {
         const result = await axios.put(`${process.env.REACT_APP_BASE_URL}/${address}/${id}`, fields, {
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...getAuthHeader() },
+            withCredentials: true
         });
         if (result.data.message) {
             dispatch(getFailed(result.data.message));
@@ -47,7 +49,10 @@ export const removeStuff = (id, address) => async (dispatch) => {
     dispatch(getRequest());
 
     try {
-        const result = await axios.put(`${process.env.REACT_APP_BASE_URL}/${address}/${id}`);
+        const result = await axios.put(`${process.env.REACT_APP_BASE_URL}/${address}/${id}`, null, {
+            headers: { ...getAuthHeader() },
+            withCredentials: true
+        });
         if (result.data.message) {
             dispatch(getFailed(result.data.message));
         } else {

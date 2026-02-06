@@ -57,9 +57,12 @@ const ShowTeachers = () => {
     ];
 
     const rows = teachersList.map((teacher) => {
+        const teachSubjects = Array.isArray(teacher.teachSubject)
+            ? teacher.teachSubject
+            : (teacher.teachSubject ? [teacher.teachSubject] : []);
         return {
             name: teacher.name,
-            teachSubject: teacher.teachSubject?.subName || null,
+            teachSubject: teachSubjects.length > 0 ? teachSubjects.map((s) => s.subName).join(', ') : null,
             teachSclass: teacher.teachSclass.sclassName,
             teachSclassID: teacher.teachSclass._id,
             id: teacher._id,
@@ -108,16 +111,16 @@ const ShowTeachers = () => {
                                             if (column.id === 'teachSubject') {
                                                 return (
                                                     <StyledTableCell key={column.id} align={column.align}>
-                                                        {value ? (
-                                                            value
-                                                        ) : (
-                                                            <Button variant="contained"
-                                                                onClick={() => {
-                                                                    navigate(`/Admin/teachers/choosesubject/${row.teachSclassID}/${row.id}`)
-                                                                }}>
-                                                                ThÃªm mÃ´n
-                                                            </Button>
-                                                        )}
+                                                        {value && <span>{value}</span>}
+                                                        <Button
+                                                            variant="contained"
+                                                            onClick={() => {
+                                                                navigate(`/Admin/teachers/choosesubject/${row.teachSclassID}/${row.id}`)
+                                                            }}
+                                                            sx={{ ml: value ? 1 : 0 }}
+                                                        >
+                                                            Thêm môn
+                                                        </Button>
                                                     </StyledTableCell>
                                                 );
                                             }
@@ -166,3 +169,6 @@ const ShowTeachers = () => {
 };
 
 export default ShowTeachers
+
+
+

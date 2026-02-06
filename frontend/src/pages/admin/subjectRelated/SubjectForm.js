@@ -38,12 +38,12 @@ const SubjectForm = () => {
 
     const handleSessionsChange = (index) => (event) => {
         const newSubjects = [...subjects];
-        newSubjects[index].sessions = event.target.value || 0;
+        newSubjects[index].sessions = event.target.value;
         setSubjects(newSubjects);
     };
 
     const handleAddSubject = () => {
-        setSubjects([...subjects, { subName: "", subCode: "" }]);
+        setSubjects([...subjects, { subName: "", subCode: "", sessions: "" }]);
     };
 
     const handleRemoveSubject = (index) => () => {

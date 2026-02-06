@@ -18,6 +18,10 @@ const studentSchema = new mongoose.Schema({
         ref: 'sclass',
         required: true,
     },
+    sclassNames: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'sclass',
+    }],
     school: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'admin',
@@ -54,7 +58,16 @@ const studentSchema = new mongoose.Schema({
             ref: 'subject',
             required: true
         }
-    }]
-});
+    }],
+    // audit
+    updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        refPath: 'updatedByModel',
+    },
+    updatedByModel: {
+        type: String,
+        enum: ['admin', 'teacher', 'student']
+    }
+}, { timestamps: true });
 
 module.exports = mongoose.model("student", studentSchema);

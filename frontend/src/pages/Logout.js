@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { authLogout } from '../redux/userRelated/userSlice';
+import { logoutUser } from '../redux/userRelated/userHandle';
 import styled from 'styled-components';
 
 const Logout = () => {
@@ -11,7 +11,7 @@ const Logout = () => {
     const dispatch = useDispatch();
 
     const handleLogout = () => {
-        dispatch(authLogout());
+        dispatch(logoutUser());
         navigate('/');
     };
 
@@ -21,7 +21,7 @@ const Logout = () => {
 
     return (
         <LogoutContainer>
-            <h1>{currentUser.name}</h1>
+            <h1>{currentUser?.name || ''}</h1>
             <LogoutMessage>Bạn có chắc muốn đăng xuất?</LogoutMessage>
             <LogoutButtonLogout onClick={handleLogout}>Đăng xuất</LogoutButtonLogout>
             <LogoutButtonCancel onClick={handleCancel}>Hủy</LogoutButtonCancel>

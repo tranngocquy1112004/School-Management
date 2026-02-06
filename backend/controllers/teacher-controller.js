@@ -8,7 +8,11 @@ const teacherRegister = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPass = await bcrypt.hash(password, salt);
 
-        const teacher = new Teacher({ name, email, password: hashedPass, role, school, teachSubject, teachSclass });
+        const teachSubjects = Array.isArray(teachSubject)
+            ? teachSubject.filter(Boolean)
+            : (teachSubject ? [teachSubject] : []);
+
+        const teacher = new Teacher({ name, email, password: hashedPass, role, school, teachSubject: teachSubjects, teachSclass });
 
         const existingTeacherByEmail = await Teacher.findOne({ email });
 
@@ -17,7 +21,12 @@ const teacherRegister = async (req, res) => {
         }
         else {
             let result = await teacher.save();
-            await Subject.findByIdAndUpdate(teachSubject, { teacher: teacher._id });
+            if (teachSubjects.length > 0) {
+                await Subject.updateMany(
+                    { _id: { $in: teachSubjects } },
+                    { teacher: teacher._id }
+                );
+            }
             result.password = undefined;
             res.send(result);
         }
@@ -36,12 +45,21 @@ const teacherLogIn = async (req, res) => {
                 teacher = await teacher.populate("school", "schoolName")
                 teacher = await teacher.populate("teachSclass", "sclassName")
                 teacher.password = undefined;
-                res.send(teacher);
+                const jwt = require('jsonwebtoken');
+                const secret = process.env.SECRET_KEY || 'secret_key_default';
+                const token = jwt.sign({ id: teacher._id, role: teacher.role, schoolId: teacher.school, teachSclass: teacher.teachSclass }, secret, { expiresIn: '8h' });
+                res.cookie('token', token, {
+                    httpOnly: true,
+                    sameSite: 'lax',
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 8 * 60 * 60 * 1000
+                });
+                res.send({ teacher, token });
             } else {
-                res.send({ message: "Mật khẩu không đúng" });
+                res.status(400).send({ message: "Mật khẩu không đúng" });
             }
         } else {
-            res.send({ message: "Không tìm thấy giáo viên" });
+            res.status(404).send({ message: "Không tìm thấy giáo viên" });
         }
     } catch (err) {
         res.status(500).json(err);
@@ -87,19 +105,78 @@ const getTeacherDetail = async (req, res) => {
 const updateTeacherSubject = async (req, res) => {
     const { teacherId, teachSubject } = req.body;
     try {
-        const updatedTeacher = await Teacher.findByIdAndUpdate(
-            teacherId,
-            { teachSubject },
-            { new: true }
-        );
+        const teacher = await Teacher.findById(teacherId);
+        if (!teacher) return res.status(404).send({ message: 'KhÃ´ng tÃ¬m tháº¥y giÃ¡o viÃªn' });
 
-        await Subject.findByIdAndUpdate(teachSubject, { teacher: updatedTeacher._id });
+        const currentSubjects = Array.isArray(teacher.teachSubject)
+            ? teacher.teachSubject
+            : (teacher.teachSubject ? [teacher.teachSubject] : []);
 
+        const exists = currentSubjects.some((id) => id.toString() === teachSubject.toString());
+        if (!exists) {
+            currentSubjects.push(teachSubject);
+            teacher.teachSubject = currentSubjects;
+            await teacher.save();
+        }
+
+        await Subject.findByIdAndUpdate(teachSubject, { teacher: teacher._id });
+
+        const updatedTeacher = await Teacher.findById(teacherId).populate("teachSubject", "subName sessions");
         res.send(updatedTeacher);
     } catch (error) {
         res.status(500).json(error);
     }
 };
+
+const updateTeacher = async (req, res) => {
+    try {
+        const user = req.user;
+        if (!user) return res.status(401).send({ message: 'Unauthenticated' });
+        const teacherId = req.params.id;
+
+        // Admin can update name, email, teachSclass; Teacher can update own name
+        let allowedFields = Array.isArray(req.allowedFields) && req.allowedFields.length > 0 ? req.allowedFields : [];
+        if (allowedFields.length === 0) {
+            if (user.role === 'Admin') {
+                allowedFields = ['name', 'email', 'teachSclass'];
+            } else if (user.role === 'Teacher') {
+                if (user.id !== teacherId) return res.status(403).send({ message: 'Forbidden' });
+                allowedFields = ['name'];
+            } else {
+                return res.status(403).send({ message: 'Forbidden' });
+            }
+        } else {
+            if (user.role === 'Teacher' && user.id !== teacherId) return res.status(403).send({ message: 'Forbidden' });
+            if (user.role !== 'Admin' && user.role !== 'Teacher') return res.status(403).send({ message: 'Forbidden' });
+        }
+
+        const update = {};
+        for (let key of Object.keys(req.body)) {
+            if (allowedFields.includes(key)) update[key] = req.body[key];
+        }
+
+        if (Object.keys(update).length === 0) return res.status(400).send({ message: 'No valid fields to update' });
+
+        // audit
+        update.updatedBy = user.id;
+        update.updatedByModel = user.role === 'Admin' ? 'admin' : 'teacher';
+
+        // if updating email check uniqueness
+        if (update.email) {
+            const existing = await Teacher.findOne({ email: update.email, _id: { $ne: teacherId } });
+            if (existing) return res.status(400).send({ message: 'Email đã tồn tại' });
+        }
+
+        const result = await Teacher.findByIdAndUpdate(teacherId, { $set: update }, { new: true });
+        if (!result) return res.status(404).send({ message: 'Không tìm thấy giáo viên' });
+        result.password = undefined;
+        res.send(result);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+};
+
+
 
 const deleteTeacher = async (req, res) => {
     try {
@@ -208,6 +285,7 @@ module.exports = {
     getTeachers,
     getTeacherDetail,
     updateTeacherSubject,
+    updateTeacher,
     deleteTeacher,
     deleteTeachers,
     deleteTeachersByClass,

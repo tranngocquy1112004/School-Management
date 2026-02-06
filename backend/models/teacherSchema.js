@@ -23,10 +23,10 @@ const teacherSchema = new mongoose.Schema({
         ref: 'admin',
         required: true,
     },
-    teachSubject: {
+    teachSubject: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'subject',
-    },
+    }],
     teachSclass: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'sclass',
@@ -43,7 +43,16 @@ const teacherSchema = new mongoose.Schema({
         absentCount: {
             type: String,
         }
-    }]
+    }],
+    // audit
+    updatedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        refPath: 'updatedByModel',
+    },
+    updatedByModel: {
+        type: String,
+        enum: ['admin', 'teacher']
+    }
 }, { timestamps: true });
 
 module.exports = mongoose.model("teacher", teacherSchema)

@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom'
 import { getClassDetails, getClassStudents, getSubjectList } from "../../../redux/sclassRelated/sclassHandle";
-import { deleteUser } from '../../../redux/userRelated/userHandle';
+import { deleteUser, updateUser } from '../../../redux/userRelated/userHandle';
 import {
-    Box, Container, Typography, Tab, IconButton
+    Box, Container, Typography, Tab, IconButton, Button, Collapse
 } from '@mui/material';
 import TabContext from '@mui/lab/TabContext';
 import TabList from '@mui/lab/TabList';
@@ -18,6 +18,74 @@ import SpeedDialTemplate from "../../../components/SpeedDialTemplate";
 import Popup from "../../../components/Popup";
 import DeleteIcon from "@mui/icons-material/Delete";
 import PostAddIcon from '@mui/icons-material/PostAdd';
+
+const ClassDetailsSection = ({
+    sclassDetails,
+    sclassName,
+    setSclassName,
+    showEdit,
+    setShowEdit,
+    updateClassName,
+    numberOfSubjects,
+    numberOfStudents,
+    getresponse,
+    response,
+    navigate,
+    classID
+}) => {
+    return (
+        <>
+            <Typography variant="h4" align="center" gutterBottom>
+                Chi tiết lớp học
+            </Typography>
+            <Typography variant="h5" gutterBottom>
+                Lớp {sclassDetails && sclassDetails.sclassName}
+            </Typography>
+            <Button variant="contained" onClick={() => setShowEdit(!showEdit)}>
+                {showEdit ? 'Hide edit' : 'Edit class name'}
+            </Button>
+            <Collapse in={showEdit} timeout="auto" unmountOnExit>
+                <div className="register">
+                    <form className="registerForm" onSubmit={updateClassName}>
+                        <span className="registerTitle">Update class name</span>
+                        <label>Class name</label>
+                        <input
+                            className="registerInput"
+                            type="text"
+                            placeholder="Enter class name..."
+                            value={sclassName}
+                            onChange={(event) => setSclassName(event.target.value)}
+                            required
+                        />
+                        <button className="registerButton" type="submit">Update</button>
+                    </form>
+                </div>
+            </Collapse>
+            <Typography variant="h6" gutterBottom>
+                Số môn học: {numberOfSubjects}
+            </Typography>
+            <Typography variant="h6" gutterBottom>
+                Số học sinh: {numberOfStudents}
+            </Typography>
+            {getresponse &&
+                <GreenButton
+                    variant="contained"
+                    onClick={() => navigate("/Admin/class/addstudents/" + classID)}
+                >
+                    Thêm học sinh
+                </GreenButton>
+            }
+            {response &&
+                <GreenButton
+                    variant="contained"
+                    onClick={() => navigate("/Admin/addsubject/" + classID)}
+                >
+                    Thêm môn học
+                </GreenButton>
+            }
+        </>
+    );
+};
 
 const ClassDetails = () => {
     const params = useParams()
@@ -45,6 +113,23 @@ const ClassDetails = () => {
 
     const [showPopup, setShowPopup] = useState(false);
     const [message, setMessage] = useState("");
+    const [showEdit, setShowEdit] = useState(false);
+    const [sclassName, setSclassName] = useState("");
+
+    useEffect(() => {
+        if (!showEdit && sclassDetails && sclassDetails.sclassName) {
+            setSclassName(sclassDetails.sclassName);
+        }
+    }, [sclassDetails, showEdit]);
+
+    const updateClassName = (event) => {
+        event.preventDefault();
+        dispatch(updateUser({ sclassName }, classID, "Sclass"))
+            .then(() => {
+                dispatch(getClassDetails(classID, "Sclass"));
+                setShowEdit(false);
+            });
+    };
 
     const deleteHandler = (deleteID, address) => {
         dispatch(deleteUser(deleteID, address))
@@ -57,7 +142,7 @@ const ClassDetails = () => {
 
     const subjectColumns = [
         { id: 'name', label: 'Tên môn học', minWidth: 170 },
-        { id: 'code', label: 'Mã môn', minWidth: 100 },
+        { id: 'code', label: 'Mã môn học', minWidth: 100 },
     ]
 
     const subjectRows = subjectsList && subjectsList.length > 0 && subjectsList.map((subject) => {
@@ -181,7 +266,7 @@ const ClassDetails = () => {
                                 variant="contained"
                                 onClick={() => navigate("/Admin/class/addstudents/" + classID)}
                             >
-                                Thêm học sinh
+                               Thêm học sinh
                             </GreenButton>
                         </Box>
                     </>
@@ -202,53 +287,18 @@ const ClassDetails = () => {
     const ClassTeachersSection = () => {
         return (
             <>
-                Giáo viên
+                Giáo viên phụ trách sẽ được hiển thị trong phần Môn học.
             </>
         )
     }
 
-    const ClassDetailsSection = () => {
-        const numberOfSubjects = subjectsList.length;
-        const numberOfStudents = sclassStudents.length;
-
-        return (
-            <>
-                <Typography variant="h4" align="center" gutterBottom>
-                    Chi tiết lớp
-                </Typography>
-                <Typography variant="h5" gutterBottom>
-                    Lớp {sclassDetails && sclassDetails.sclassName}
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                    Số môn học: {numberOfSubjects}
-                </Typography>
-                <Typography variant="h6" gutterBottom>
-                    Số học sinh: {numberOfStudents}
-                </Typography>
-                {getresponse &&
-                    <GreenButton
-                        variant="contained"
-                        onClick={() => navigate("/Admin/class/addstudents/" + classID)}
-                    >
-                        Thêm học sinh
-                    </GreenButton>
-                }
-                {response &&
-                    <GreenButton
-                        variant="contained"
-                        onClick={() => navigate("/Admin/addsubject/" + classID)}
-                    >
-                        Thêm môn học
-                    </GreenButton>
-                }
-            </>
-        );
-    }
+    const numberOfSubjects = subjectsList.length;
+    const numberOfStudents = sclassStudents.length;
 
     return (
         <>
             {loading ? (
-                <div>Đang tải...</div>
+                <div>Chi tiết lớp học...</div>
             ) : (
                 <>
                     <Box sx={{ width: '100%', typography: 'body1', }} >
@@ -263,7 +313,20 @@ const ClassDetails = () => {
                             </Box>
                             <Container sx={{ marginTop: "3rem", marginBottom: "4rem" }}>
                                 <TabPanel value="1">
-                                    <ClassDetailsSection />
+                                    <ClassDetailsSection
+                                        sclassDetails={sclassDetails}
+                                        sclassName={sclassName}
+                                        setSclassName={setSclassName}
+                                        showEdit={showEdit}
+                                        setShowEdit={setShowEdit}
+                                        updateClassName={updateClassName}
+                                        numberOfSubjects={numberOfSubjects}
+                                        numberOfStudents={numberOfStudents}
+                                        getresponse={getresponse}
+                                        response={response}
+                                        navigate={navigate}
+                                        classID={classID}
+                                    />
                                 </TabPanel>
                                 <TabPanel value="2">
                                     <ClassSubjectsSection />

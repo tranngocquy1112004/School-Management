@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import * as React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom'
-import { getClassStudents } from "../../redux/sclassRelated/sclassHandle";
+import { getClassStudents, getClassDetails } from "../../redux/sclassRelated/sclassHandle";
 import { Paper, Box, Typography, ButtonGroup, Button, Popper, Grow, ClickAwayListener, MenuList, MenuItem } from '@mui/material';
 import { BlackButton, BlueButton} from "../../components/buttonStyles";
 import TableTemplate from "../../components/TableTemplate";
@@ -15,10 +15,20 @@ const TeacherClassDetails = () => {
 
     const { currentUser } = useSelector((state) => state.user);
     const classID = currentUser.teachSclass?._id
-    const subjectID = currentUser.teachSubject?._id
+    const teachSubjects = Array.isArray(currentUser.teachSubject)
+        ? currentUser.teachSubject
+        : (currentUser.teachSubject ? [currentUser.teachSubject] : []);
+    const [selectedSubjectId, setSelectedSubjectId] = React.useState(teachSubjects[0]?._id || "");
+
+    React.useEffect(() => {
+        if (!selectedSubjectId && teachSubjects.length > 0) {
+            setSelectedSubjectId(teachSubjects[0]._id);
+        }
+    }, [teachSubjects, selectedSubjectId]);
 
     useEffect(() => {
         dispatch(getClassStudents(classID));
+        dispatch(getClassDetails(classID, "Sclass"));
     }, [dispatch, classID])
 
     if (error) {
@@ -39,7 +49,7 @@ const TeacherClassDetails = () => {
     })
 
     const StudentsButtonHaver = ({ row }) => {
-        const options = ['Điểm danh', 'Nhập điểm'];
+        const options = ['Xem điểm', 'Nhập điểm'];
 
         const [open, setOpen] = React.useState(false);
         const anchorRef = React.useRef(null);
@@ -55,10 +65,12 @@ const TeacherClassDetails = () => {
         };
 
         const handleAttendance = () => {
-            navigate(`/Teacher/class/student/attendance/${row.id}/${subjectID}`)
+            if (!selectedSubjectId) return;
+            navigate(`/Teacher/class/student/attendance/${row.id}/${selectedSubjectId}`)
         }
         const handleMarks = () => {
-            navigate(`/Teacher/class/student/marks/${row.id}/${subjectID}`)
+            if (!selectedSubjectId) return;
+            navigate(`/Teacher/class/student/marks/${row.id}/${selectedSubjectId}`)
         };
 
         const handleMenuItemClick = (event, index) => {
@@ -152,6 +164,23 @@ const TeacherClassDetails = () => {
                     <Typography variant="h4" align="center" gutterBottom>
                         Chi tiết lớp
                     </Typography>
+                    {teachSubjects.length > 0 && (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+                            <select
+                                className="registerInput"
+                                value={selectedSubjectId}
+                                onChange={(event) => setSelectedSubjectId(event.target.value)}
+                            >
+                                {teachSubjects.map((subject) => (
+                                    <option key={subject._id} value={subject._id}>
+                                        {subject.subName}
+                                    </option>
+                                ))}
+                            </select>
+                        </Box>
+                    )}
+
+                    
                     {getresponse ? (
                         <>
                             <Box sx={{ display: 'flex', justifyContent: 'flex-end', marginTop: '16px' }}>

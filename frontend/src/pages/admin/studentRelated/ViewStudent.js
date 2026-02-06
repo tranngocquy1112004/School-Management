@@ -27,6 +27,7 @@ const ViewStudent = () => {
     const params = useParams()
     const dispatch = useDispatch()
     const { userDetails, response, loading, error } = useSelector((state) => state.user);
+    const { subjectsList } = useSelector((state) => state.sclass);
 
     const studentID = params.id
     const address = "Student"
@@ -35,11 +36,6 @@ const ViewStudent = () => {
         dispatch(getUserDetails(studentID, address));
     }, [dispatch, studentID])
 
-    useEffect(() => {
-        if (userDetails && userDetails.sclassName && userDetails.sclassName._id !== undefined) {
-            dispatch(getSubjectList(userDetails.sclassName._id, "ClassSubjects"));
-        }
-    }, [dispatch, userDetails]);
 
     if (response) { console.log(response) }
     else if (error) { console.log(error) }
@@ -49,9 +45,13 @@ const ViewStudent = () => {
     const [password, setPassword] = useState('');
     const [sclassName, setSclassName] = useState('');
     const [studentSchool, setStudentSchool] = useState('');
-    const [subjectMarks, setSubjectMarks] = useState('');
+    const [subjectMarks, setSubjectMarks] = useState([]);
     const [subjectAttendance, setSubjectAttendance] = useState([]);
 
+    const [selectedClassId, setSelectedClassId] = useState('');
+    const studentClasses = Array.isArray(userDetails?.sclassNames)
+        ? userDetails.sclassNames
+        : (userDetails?.sclassName ? [userDetails.sclassName] : []);
     const [openStates, setOpenStates] = useState({});
 
     const [showPopup, setShowPopup] = useState(false);
@@ -79,6 +79,22 @@ const ViewStudent = () => {
         ? { name, rollNum }
         : { name, rollNum, password }
 
+    useEffect(() => {
+        if (userDetails) {
+            const classes = Array.isArray(userDetails.sclassNames)
+                ? userDetails.sclassNames
+                : (userDetails.sclassName ? [userDetails.sclassName] : []);
+            if (classes.length > 0) {
+                setSelectedClassId((prev) => prev || classes[0]._id);
+            }
+        }
+    }, [userDetails]);
+
+    useEffect(() => {
+        if (selectedClassId) {
+            dispatch(getSubjectList(selectedClassId, "ClassSubjects"));
+        }
+    }, [dispatch, selectedClassId]);
     useEffect(() => {
         if (userDetails) {
             setName(userDetails.name || '');
@@ -122,7 +138,19 @@ const ViewStudent = () => {
             })
     }
 
-    const overallAttendancePercentage = calculateOverallAttendancePercentage(subjectAttendance);
+    const allowedSubjectIds = Array.isArray(subjectsList)
+        ? new Set(subjectsList.map((s) => s._id))
+        : new Set();
+    const filteredAttendance = allowedSubjectIds.size > 0
+        ? subjectAttendance.filter((a) => a.subName && allowedSubjectIds.has(a.subName._id))
+        : subjectAttendance;
+    const filteredMarks = Array.isArray(subjectMarks)
+        ? (allowedSubjectIds.size > 0
+            ? subjectMarks.filter((m) => m.subName && allowedSubjectIds.has(m.subName._id))
+            : subjectMarks)
+        : []; 
+
+    const overallAttendancePercentage = calculateOverallAttendancePercentage(filteredAttendance);
     const overallAbsentPercentage = 100 - overallAttendancePercentage;
 
     const chartData = [
@@ -130,7 +158,7 @@ const ViewStudent = () => {
         { name: 'Vắng', value: overallAbsentPercentage }
     ];
 
-    const subjectData = Object.entries(groupAttendanceBySubject(subjectAttendance)).map(([subName, { subCode, present, sessions }]) => {
+    const subjectData = Object.entries(groupAttendanceBySubject(filteredAttendance)).map(([subName, { subCode, present, sessions }]) => {
         const subjectAttendancePercentage = calculateSubjectAttendancePercentage(present, sessions);
         return {
             subject: subName,
@@ -155,7 +183,7 @@ const ViewStudent = () => {
                                 <StyledTableCell align="center">Thao tác</StyledTableCell>
                             </StyledTableRow>
                         </TableHead>
-                        {Object.entries(groupAttendanceBySubject(subjectAttendance)).map(([subName, { present, allData, subId, sessions }], index) => {
+                        {Object.entries(groupAttendanceBySubject(filteredAttendance)).map(([subName, { present, allData, subId, sessions }], index) => {
                             const subjectAttendancePercentage = calculateSubjectAttendancePercentage(present, sessions);
                             return (
                                 <TableBody key={index}>
@@ -280,7 +308,7 @@ const ViewStudent = () => {
                             </StyledTableRow>
                         </TableHead>
                         <TableBody>
-                            {subjectMarks.map((result, index) => {
+                            {filteredMarks.map((result, index) => {
                                 if (!result.subName || !result.marksObtained) {
                                     return null;
                                 }
@@ -308,7 +336,7 @@ const ViewStudent = () => {
         }
         return (
             <>
-                {subjectMarks && Array.isArray(subjectMarks) && subjectMarks.length > 0
+                {filteredMarks && Array.isArray(filteredMarks) && filteredMarks.length > 0
                     ?
                     <>
                         {selectedSection === 'table' && renderTableSection()}
@@ -345,7 +373,18 @@ const ViewStudent = () => {
                 <br />
                 Số báo danh: {userDetails.rollNum}
                 <br />
-                Lớp: {sclassName.sclassName}
+                Classes: {studentClasses.map((c) => c.sclassName).join(', ')}
+                {studentClasses.length > 1 && (
+                    <select
+                        className="registerInput"
+                        value={selectedClassId}
+                        onChange={(event) => setSelectedClassId(event.target.value)}
+                    >
+                        {studentClasses.map((c) => (
+                            <option key={c._id} value={c._id}>{c.sclassName}</option>
+                        ))}
+                    </select>
+                )}
                 <br />
                 Trường: {studentSchool.schoolName}
                 {

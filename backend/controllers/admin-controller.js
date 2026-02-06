@@ -57,18 +57,22 @@ const Complain = require('../models/complainSchema.js');
 
 const adminRegister = async (req, res) => {
     try {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPass = await bcrypt.hash(req.body.password, salt);
+
         const admin = new Admin({
-            ...req.body
+            ...req.body,
+            password: hashedPass
         });
 
         const existingAdminByEmail = await Admin.findOne({ email: req.body.email });
         const existingSchool = await Admin.findOne({ schoolName: req.body.schoolName });
 
         if (existingAdminByEmail) {
-            res.send({ message: 'Email đã tồn tại' });
+            res.status(400).send({ message: 'Email đã tồn tại' });
         }
         else if (existingSchool) {
-            res.send({ message: 'Tên trường đã tồn tại' });
+            res.status(400).send({ message: 'Tên trường đã tồn tại' });
         }
         else {
             let result = await admin.save();
@@ -84,17 +88,27 @@ const adminLogIn = async (req, res) => {
     if (req.body.email && req.body.password) {
         let admin = await Admin.findOne({ email: req.body.email });
         if (admin) {
-            if (req.body.password === admin.password) {
+            const validated = await bcrypt.compare(req.body.password, admin.password);
+            if (validated) {
+                const jwt = require('jsonwebtoken');
+                const secret = process.env.SECRET_KEY || 'secret_key_default';
+                const token = jwt.sign({ id: admin._id, role: admin.role, schoolId: admin._id }, secret, { expiresIn: '8h' });
+                res.cookie('token', token, {
+                    httpOnly: true,
+                    sameSite: 'lax',
+                    secure: process.env.NODE_ENV === 'production',
+                    maxAge: 8 * 60 * 60 * 1000
+                });
                 admin.password = undefined;
-                res.send(admin);
+                res.send({ admin, token });
             } else {
-                res.send({ message: "Mật khẩu không đúng" });
+                res.status(400).send({ message: "Mật khẩu không đúng" });
             }
         } else {
-            res.send({ message: "Không tìm thấy người dùng" });
+            res.status(404).send({ message: "Không tìm thấy người dùng" });
         }
     } else {
-        res.send({ message: "Cần email và mật khẩu" });
+        res.status(400).send({ message: "Cần email và mật khẩu" });
     }
 };
 

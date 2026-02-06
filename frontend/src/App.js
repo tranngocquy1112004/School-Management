@@ -1,6 +1,6 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import Homepage from './pages/Homepage';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import StudentDashboard from './pages/student/StudentDashboard';
@@ -8,9 +8,17 @@ import TeacherDashboard from './pages/teacher/TeacherDashboard';
 import LoginPage from './pages/LoginPage';
 import AdminRegisterPage from './pages/admin/AdminRegisterPage';
 import ChooseUser from './pages/ChooseUser';
+import { getMe } from './redux/userRelated/userHandle';
 
 const App = () => {
+  const dispatch = useDispatch();
   const { currentRole } = useSelector(state => state.user);
+
+  useEffect(() => {
+    if (currentRole === null) {
+      dispatch(getMe());
+    }
+  }, [dispatch, currentRole]);
 
   return (
     <Router>

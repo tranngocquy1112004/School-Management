@@ -88,6 +88,55 @@ const getSubjectDetail = async (req, res) => {
     }
 }
 
+const updateSubject = async (req, res) => {
+    try {
+        const user = req.user;
+        if (!user) return res.status(401).send({ message: 'Unauthenticated' });
+        if (user.role !== 'Admin') return res.status(403).send({ message: 'Forbidden' });
+
+        const subject = await Subject.findById(req.params.id);
+        if (!subject) return res.status(404).send({ message: 'Subject not found' });
+
+        if (subject.school && user.schoolId && subject.school.toString() !== user.schoolId.toString()) {
+            return res.status(403).send({ message: 'Forbidden' });
+        }
+
+        const allowedFields = Array.isArray(req.allowedFields) && req.allowedFields.length > 0
+            ? req.allowedFields
+            : ['subName', 'subCode', 'sessions'];
+        const update = {};
+        for (const key of Object.keys(req.body)) {
+            if (allowedFields.includes(key)) update[key] = req.body[key];
+        }
+        if (Object.keys(update).length === 0) {
+            return res.status(400).send({ message: 'No valid fields to update' });
+        }
+
+        if (update.subName) {
+            const existingByName = await Subject.findOne({
+                subName: update.subName,
+                school: subject.school,
+                _id: { $ne: subject._id }
+            });
+            if (existingByName) return res.status(400).send({ message: 'Subject name already exists' });
+        }
+
+        if (update.subCode) {
+            const existingByCode = await Subject.findOne({
+                subCode: update.subCode,
+                school: subject.school,
+                _id: { $ne: subject._id }
+            });
+            if (existingByCode) return res.status(400).send({ message: 'Subject code already exists' });
+        }
+
+        Object.assign(subject, update);
+        const updated = await subject.save();
+        res.send(updated);
+    } catch (error) {
+        res.status(500).json(error);
+    }
+};
 const deleteSubject = async (req, res) => {
     try {
         const deletedSubject = await Subject.findByIdAndDelete(req.params.id);
@@ -99,7 +148,7 @@ const deleteSubject = async (req, res) => {
         // Unassign this subject from teachers
         await Teacher.updateMany(
             { teachSubject: deletedSubject._id },
-            { $unset: { teachSubject: 1 } }
+            { $pull: { teachSubject: deletedSubject._id } }
         );
 
         // Remove the objects containing the deleted subject from students' examResult array
@@ -131,7 +180,7 @@ const deleteSubjects = async (req, res) => {
             // Unassign subjects from teachers
             await Teacher.updateMany(
                 { teachSubject: { $in: subjectIds } },
-                { $unset: { teachSubject: 1 } }
+                { $pull: { teachSubject: { $in: subjectIds } } }
             );
 
             // Clear examResult and attendance for students in this school
@@ -158,7 +207,7 @@ const deleteSubjectsByClass = async (req, res) => {
             // Unassign subjects from teachers
             await Teacher.updateMany(
                 { teachSubject: { $in: subjectIds } },
-                { $unset: { teachSubject: 1 } }
+                { $pull: { teachSubject: { $in: subjectIds } } }
             );
 
             // Clear examResult and attendance for students in this class
@@ -174,5 +223,35 @@ const deleteSubjectsByClass = async (req, res) => {
     }
 };
 
+const updateTeacher = async (req, res) => {
+    const { id } = req.params;
+    const requester = req.user;
+    try {
+        const teacher = await Teacher.findById(id);
+        if (!teacher) return res.status(404).json({ message: 'Teacher not found' });
 
-module.exports = { subjectCreate, freeSubjectList, classSubjects, getSubjectDetail, deleteSubjectsByClass, deleteSubjects, deleteSubject, allSubjects };
+        const update = {};
+
+        if (requester.role === 'Admin') {
+            if (req.body.name) update.name = req.body.name;
+        } else if (requester.role === 'Teacher') {
+            if (String(requester.id) !== String(id)) return res.status(403).json({ message: 'Forbidden' });
+            if (req.body.name) update.name = req.body.name;
+        } else {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+
+        if (Object.keys(update).length === 0) return res.status(400).json({ message: 'No updatable fields provided' });
+
+        update.updatedBy = requester.id;
+        update.updatedByModel = requester.role.toLowerCase();
+
+        const updated = await Teacher.findByIdAndUpdate(id, update, { new: true });
+        if (updated) updated.password = undefined;
+        res.json(updated);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+};
+
+module.exports = { subjectCreate, freeSubjectList, classSubjects, getSubjectDetail, updateSubject, deleteSubjectsByClass, deleteSubjects, deleteSubject, allSubjects, updateTeacher };
